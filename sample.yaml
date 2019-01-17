@@ -1,3 +1,6 @@
+include:
+  - security_categorization_usa.yaml
+
 accounts:
   - A_Taxable:
       holdings:
@@ -28,12 +31,3 @@ target_portfolios:
         - Domestic Stocks: 0.9
         - Domestic Bonds: 0.1
         - International Stocks: 0
-
-security_categorization:
-  default: Domestic Stocks
-  categories:
-    Domestic Stocks:
-    Domestic Bonds:
-      - BND
-    International Stocks:
-      - VXUS

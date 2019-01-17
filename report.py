@@ -48,10 +48,22 @@ def print_df(df):
         print(df)
 
 
+def read_yaml(path):
+    with open(path, 'r') as doc:
+        return yaml.load(doc)
+
+
+def load_yaml(path):
+    cfg = read_yaml(path)
+    if 'include' in cfg and cfg['include']:
+        for inc in cfg['include']:
+            inc_yaml = read_yaml(inc)
+            cfg = {**cfg, **inc_yaml}
+    return cfg
+
+
 def generate_report(input):
-    cfg = None
-    with open(input, 'r') as doc:
-        cfg = yaml.load(doc)
+    cfg = load_yaml('sample.yaml')
 
     for account in cfg['accounts']:
         for name, acct in account.items():

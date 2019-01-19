@@ -2,27 +2,27 @@ include:
   - security_categorization_usa.yaml
 
 accounts:
-  - A_Taxable:
-      holdings:
-        securities:
-          - SPY: 5.5
-          - BND: 1.0
-          - VXUS: 0.4
-        cash: 5000.10
-  - B_NonTaxed:
-      holdings:
-        securities:
-          - SPY: 6.0
-          - BND: 0.3
-        cash: 100
+  A_Taxable:
+    holdings:
+      securities:
+        - SPY: 5.5
+        - BND: 1.0
+        - VXUS: 0.4
+      cash: 5000.10
+  B_NonTaxed:
+    holdings:
+      securities:
+        - SPY: 6.0
+        - BND: 0.3
+      cash: 100
 
 portfolios:
-  - Taxable:
-      accounts: [A_Taxable]
-      target: target_portfolio_1
-  - NonTaxed:
-      accounts: [B_NonTaxed]
-      target: target_portfolio_1
+  Taxable:
+    accounts: [A_Taxable]
+    target: target_portfolio_1
+  NonTaxed:
+    accounts: [B_NonTaxed]
+    target: target_portfolio_1
 
 target_portfolios:
   target_portfolio_1:

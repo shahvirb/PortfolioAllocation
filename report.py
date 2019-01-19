@@ -10,25 +10,22 @@ def merge_dicts(list):
     return d
 
 
-def account_securities_df(cfg, account):
-    data = {
-        'Symbol': [],
-        'Qty': [],
-        'Price': [],
-        'Value': [],
-        'Category': [],
-    }
+def account_basic_df(cfg, account):
     categories = securities.SecurityCategories(cfg)
-    #TODO directly make a dataframe instead of a making a dict first
+    df = pd.DataFrame()
     for symbol,qty in merge_dicts(account).items():
-        data['Symbol'].append(symbol)
-        data['Qty'].append(qty)
+        df.at[symbol, 'Symbol'] = symbol
+        df.at[symbol, 'Qty'] = qty
         price = securities.price(symbol)
-        data['Price'].append(price)
-        data['Value'].append(price * qty)
-        data['Category'].append(categories(symbol))
-    df = pd.DataFrame.from_dict(data)
+        df.at[symbol, 'Price'] = price
+        df.at[symbol, 'Value'] = price * qty
+        df.at[symbol, 'Category'] = categories(symbol)
+    df = df.set_index('Symbol')
+    return df
 
+
+def account_securities_df(cfg, account):
+    df = account_basic_df(cfg, account)
     df.at['Total','Value'] = df['Value'].sum()
     df['Weight'] = df['Value'] / df.at['Total','Value']
     return df
@@ -43,9 +40,33 @@ def account_categories_df(df):
     return cats
 
 
+def portfolio_df(cfg, portfolio):
+    portfolios = []
+    for name in cfg['accounts']:
+        acct = cfg['accounts'][name]
+        acct_df = account_basic_df(cfg, acct['holdings']['securities'])
+        acct_df['Account'] = name
+        portfolios.append(acct_df)
+    port_df = pd.concat(portfolios)
+    port_df['Weight'] = port_df['Value'] / port_df['Value'].sum()
+    port_df = port_df.reset_index().set_index('Account')
+    return port_df
+
+
+def run_from_ipython():
+    try:
+        __IPYTHON__
+        return True
+    except NameError:
+        return False
+
+
 def print_df(df):
-    with pd.option_context('display.max_rows', None, 'display.max_columns', None):
-        print(df)
+    if run_from_ipython():
+        display(df)
+    else:
+        with pd.option_context('display.max_rows', None, 'display.max_columns', None):
+            print(df)
 
 
 def read_yaml(path):
@@ -62,17 +83,29 @@ def load_yaml(path):
     return cfg
 
 
+def accounts_report(cfg):
+    for name in cfg['accounts']:
+        acct = cfg['accounts'][name]
+        acct_df = account_securities_df(cfg, acct['holdings']['securities'])
+        print(name)
+        print_df(acct_df)
+        print_df(account_categories_df(acct_df))
+        print()
+
+
+def portfolios_report(cfg):
+    for name in cfg['portfolios']:
+        port = cfg['portfolios'][name]
+        print(name)
+        port_df = portfolio_df(cfg, port)
+        print_df(port_df)
+        print()
+
+
 def generate_report(input):
-    cfg = load_yaml('sample.yaml')
-
-    for account in cfg['accounts']:
-        for name, acct in account.items():
-            acct_df = account_securities_df(cfg, acct['holdings']['securities'])
-            print(name)
-            print_df(acct_df)
-            print_df(account_categories_df(acct_df))
-            print()
-
+    cfg = load_yaml(input)
+    accounts_report(cfg)
+    portfolios_report(cfg)
 
 if __name__ == "__main__":
     generate_report('sample.yaml')

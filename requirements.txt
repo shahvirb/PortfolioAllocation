@@ -3,3 +3,4 @@ jupyter
 pandas
 pyYAML
 pyEX
+qgrid

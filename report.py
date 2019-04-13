@@ -1,7 +1,7 @@
 import yaml
 import pandas as pd
 import securities
-
+import qgrid
 
 def merge_dicts(list):
     d = {}
@@ -61,9 +61,18 @@ def run_from_ipython():
         return False
 
 
+def init_display():
+    import qgrid
+    from IPython.display import display, HTML
+    from IPython.core.interactiveshell import InteractiveShell
+    InteractiveShell.ast_node_interactivity = "all"
+
+
 def print_df(df):
     if run_from_ipython():
-        display(df)
+        #display(df)
+        qgrid_widget = qgrid.show_grid(df, show_toolbar=True)
+        display(qgrid_widget)
     else:
         with pd.option_context('display.max_rows', None, 'display.max_columns', None):
             print(df)

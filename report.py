@@ -3,11 +3,50 @@ import pandas as pd
 import securities
 import qgrid
 
-def merge_dicts(list):
-    d = {}
-    for x in list:
-        d.update(x)
-    return d
+# def merge_dicts(list):
+#     d = {}
+#     for x in list:
+#         d.update(x)
+#     return d
+
+
+def run_from_ipython():
+    try:
+        __IPYTHON__
+        return True
+    except NameError:
+        return False
+
+
+def init_display():
+    import qgrid
+    from IPython.display import display, HTML
+    from IPython.core.interactiveshell import InteractiveShell
+    InteractiveShell.ast_node_interactivity = "all"
+
+
+def print_df(df):
+    if run_from_ipython():
+        #display(df)
+        qgrid_widget = qgrid.show_grid(df, show_toolbar=True)
+        display(qgrid_widget)
+    else:
+        with pd.option_context('display.max_rows', None, 'display.max_columns', None):
+            print(df)
+
+
+def read_yaml(path):
+    with open(path, 'r') as doc:
+        return yaml.load(doc)
+
+
+def load_yaml(path):
+    cfg = read_yaml(path)
+    if 'include' in cfg and cfg['include']:
+        for inc in cfg['include']:
+            inc_yaml = read_yaml(inc)
+            cfg = {**cfg, **inc_yaml}
+    return cfg
 
 
 def account_basic_df(cfg, account):
@@ -51,45 +90,6 @@ def portfolio_df(cfg, portfolio):
     port_df['Weight'] = port_df['Value'] / port_df['Value'].sum()
     port_df = port_df.reset_index().set_index('Account')
     return port_df
-
-
-def run_from_ipython():
-    try:
-        __IPYTHON__
-        return True
-    except NameError:
-        return False
-
-
-def init_display():
-    import qgrid
-    from IPython.display import display, HTML
-    from IPython.core.interactiveshell import InteractiveShell
-    InteractiveShell.ast_node_interactivity = "all"
-
-
-def print_df(df):
-    if run_from_ipython():
-        #display(df)
-        qgrid_widget = qgrid.show_grid(df, show_toolbar=True)
-        display(qgrid_widget)
-    else:
-        with pd.option_context('display.max_rows', None, 'display.max_columns', None):
-            print(df)
-
-
-def read_yaml(path):
-    with open(path, 'r') as doc:
-        return yaml.load(doc)
-
-
-def load_yaml(path):
-    cfg = read_yaml(path)
-    if 'include' in cfg and cfg['include']:
-        for inc in cfg['include']:
-            inc_yaml = read_yaml(inc)
-            cfg = {**cfg, **inc_yaml}
-    return cfg
 
 
 def accounts_report(cfg):

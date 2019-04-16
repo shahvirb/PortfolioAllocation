@@ -5,15 +5,15 @@ accounts:
   A_Taxable:
     holdings:
       securities:
-        - SPY: 5.5
-        - BND: 1.0
-        - VXUS: 0.4
+        SPY: 5.5
+        BND: 1.0
+        VXUS: 0.4
       cash: 5000.10
   B_NonTaxed:
     holdings:
       securities:
-        - SPY: 6.0
-        - BND: 0.3
+        SPY: 6.0
+        BND: 0.3
       cash: 100
 
 portfolios:
@@ -23,11 +23,14 @@ portfolios:
   NonTaxed:
     accounts: [B_NonTaxed]
     target: target_portfolio_1
+  Combined:
+    accounts: [A_Taxable, B_NonTaxed]
+    target: target_portfolio_1
 
 target_portfolios:
   target_portfolio_1:
     holdings:
       category_weighted:
-        - Domestic Stocks: 0.9
-        - Domestic Bonds: 0.1
-        - International Stocks: 0
+        Domestic Stocks: 0.9
+        Domestic Bonds: 0.1
+        International Stocks: 0

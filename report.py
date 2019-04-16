@@ -13,7 +13,7 @@ def merge_dicts(list):
 def account_basic_df(cfg, account):
     categories = securities.SecurityCategories(cfg)
     df = pd.DataFrame()
-    for symbol,qty in merge_dicts(account).items():
+    for symbol,qty in account.items():
         df.at[symbol, 'Symbol'] = symbol
         df.at[symbol, 'Qty'] = qty
         price = securities.price(symbol)
@@ -42,7 +42,7 @@ def account_categories_df(df):
 
 def portfolio_df(cfg, portfolio):
     portfolios = []
-    for name in cfg['accounts']:
+    for name in portfolio['accounts']:
         acct = cfg['accounts'][name]
         acct_df = account_basic_df(cfg, acct['holdings']['securities'])
         acct_df['Account'] = name

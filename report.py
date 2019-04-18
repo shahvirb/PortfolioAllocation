@@ -28,7 +28,8 @@ def init_display():
 def print_df(df):
     if run_from_ipython():
         #display(df)
-        qgrid_widget = qgrid.show_grid(df, show_toolbar=True)
+        flat = flatten_multiindex_columns(df)
+        qgrid_widget = qgrid.show_grid(flat, show_toolbar=True)
         display(qgrid_widget)
     else:
         with pd.option_context('display.max_rows', None, 'display.max_columns', None):
@@ -47,6 +48,14 @@ def load_yaml(path):
             inc_yaml = read_yaml(inc)
             cfg = {**cfg, **inc_yaml}
     return cfg
+
+
+def flatten_multiindex_columns(df):
+    if df.ndim > 1 and isinstance(df.columns, pd.MultiIndex):
+        flat = df
+        flat.columns = [' '.join(col).strip() for col in df.columns.values]
+        return flat
+    return df
 
 
 def account_basic_df(cfg, account):
@@ -92,6 +101,18 @@ def portfolio_df(cfg, portfolio):
     return port_df
 
 
+def portfolio_target_comparison(target, pdf):
+    dedupe = pdf.groupby(['Symbol', 'Category']).sum().reset_index()
+    #report.print_df(dedupe.reset_index())
+    compare = dedupe.pivot(index='Category', columns='Symbol', values=['Value', 'Weight'])
+    compare['Value', 'Total'] = compare['Value'].sum(axis=1)
+    compare['Weight', 'Total'] = compare['Weight'].sum(axis=1)
+    compare['Weight', 'Error'] = compare['Weight','Total'] - [target['holdings']['category_weighted'][name] for name in compare.index]
+    compare['Value', 'Error'] = compare['Weight', 'Error'] * compare['Value', 'Total']
+    #TODO reorder Value and Weight total, error columns
+    return compare
+
+
 def accounts_report(cfg):
     for name in cfg['accounts']:
         acct = cfg['accounts'][name]
@@ -108,6 +129,8 @@ def portfolios_report(cfg):
         print(name)
         port_df = portfolio_df(cfg, port)
         print_df(port_df)
+        compare = portfolio_target_comparison(cfg['target_portfolios'][port['target']], port_df)
+        print_df(compare)
         print()
 
 

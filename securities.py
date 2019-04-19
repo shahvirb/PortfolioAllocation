@@ -45,5 +45,8 @@ def symbol_categories_df(cfg):
     cats = SecurityCategories(cfg)
     df = pd.DataFrame()
     for s in syms:
+        df.at[s, 'Symbol'] = s
         df.at[s, 'Category'] = cats.category(s, default='{} [Default]'.format(cats.default_category))
+    df.set_index('Symbol', inplace=True)
+    df.sort_values('Symbol', inplace=True)
     return df

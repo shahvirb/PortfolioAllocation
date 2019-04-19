@@ -1,3 +1,4 @@
+import pandas as pd
 import pyEX
 import functools
 
@@ -26,26 +27,23 @@ class SecurityCategories():
                 for s in categories[c]:
                     self.symbol_cats[s] = c
 
-    def category(self, symbol):
+    def category(self, symbol, default=None):
         if symbol in self.symbol_cats:
             return self.symbol_cats[symbol]
         else:
-            return self.default_category
+            return self.default_category if not default else default
 
     def __call__(self, symbol):
         return self.category(symbol)
 
 
-def categories(cfg):
-    symbol_cats = {}
-    categories = cfg['security_categorization']['categories']
-    for c in categories:
-        if categories[c]:
-            for s in categories[c]:
-                symbol_cats[s] = categories[c]
-    return symbol_cats
-
-
-def category(categories, symbol):
-    if symbol not in categories:
-        pass
+def symbol_categories_df(cfg):
+    syms = set()
+    for act in cfg['accounts']:
+        for s in cfg['accounts'][act]['holdings']['securities'].keys():
+            syms.add(s)
+    cats = SecurityCategories(cfg)
+    df = pd.DataFrame()
+    for s in syms:
+        df.at[s, 'Category'] = cats.category(s, default='{} [Default]'.format(cats.default_category))
+    return df

@@ -90,7 +90,14 @@ def account_categories_df(df):
 
 def portfolio_df(cfg, portfolio):
     portfolios = []
-    for name in portfolio['accounts']:
+
+    accounts = set()
+    if 'accounts' in portfolio:
+        accounts.update(portfolio['accounts'])
+    if 'portfolios' in portfolio:
+        accounts.update([act for pname in portfolio['portfolios'] for act in cfg['portfolios'][pname]['accounts']])
+
+    for name in accounts:
         acct = cfg['accounts'][name]
         acct_df = account_basic_df(cfg, acct['holdings']['securities'])
         acct_df['Account'] = name

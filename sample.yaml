@@ -24,7 +24,7 @@ portfolios:
     accounts: [B_NonTaxed]
     target: target_portfolio_1
   Combined:
-    accounts: [A_Taxable, B_NonTaxed]
+    portfolios: [Taxable, NonTaxed]
     target: target_portfolio_1
 
 target_portfolios:

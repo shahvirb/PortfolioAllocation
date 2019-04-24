@@ -2,6 +2,7 @@ import yaml
 import pandas as pd
 import securities
 import qgrid
+import config
 
 # def merge_dicts(list):
 #     d = {}
@@ -34,20 +35,6 @@ def print_df(df):
     else:
         with pd.option_context('display.max_rows', None, 'display.max_columns', None):
             print(df)
-
-
-def read_yaml(path):
-    with open(path, 'r') as doc:
-        return yaml.load(doc)
-
-
-def load_yaml(path):
-    cfg = read_yaml(path)
-    if 'include' in cfg and cfg['include']:
-        for inc in cfg['include']:
-            inc_yaml = read_yaml(inc)
-            cfg = {**cfg, **inc_yaml}
-    return cfg
 
 
 def flatten_multiindex_columns(df):
@@ -142,9 +129,9 @@ def portfolios_report(cfg):
 
 
 def generate_report(input):
-    cfg = load_yaml(input)
+    cfg = config.load_yaml(input)
     accounts_report(cfg)
     portfolios_report(cfg)
 
 if __name__ == "__main__":
-    generate_report('sample.yaml')
+    generate_report('shahvir.yaml')

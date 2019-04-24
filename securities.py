@@ -5,8 +5,11 @@ import functools
 MEMO_SIZE = 32
 
 @functools.lru_cache(maxsize=MEMO_SIZE)
-def price(symbol):
-    return pyEX.price(symbol)
+def price(symbol, raises=False):
+    try:
+        return pyEX.price(symbol)
+    except pyEX.PyEXception as e:
+        return e if raises else 0
 
 #@functools.lru_cache(maxsize=MEMO_SIZE)
 # def category(cfg, symbol):
@@ -50,3 +53,10 @@ def symbol_categories_df(cfg):
     df.set_index('Symbol', inplace=True)
     df.sort_values('Symbol', inplace=True)
     return df
+
+
+if __name__ == "__main__":
+    import config
+    cfg = config.load_yaml('sample.yaml')
+    cats = symbol_categories_df(cfg)
+    cats['Price'] = cats.apply(lambda x: price(x.name), axis=1)

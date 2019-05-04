@@ -1,6 +1,11 @@
+cufflinks
+dash
+dash-bootstrap-components
+dash-daq
 ipykernel
 jupyter
 pandas
+plotly
 pyYAML
 pyEX
 qgrid

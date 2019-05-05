@@ -102,18 +102,23 @@ def portfolio_target_comparison(target, pdf):
     compare['Value', 'Total'] = compare['Value'].sum(axis=1)
     compare['Weight', 'Total'] = compare['Weight'].sum(axis=1)
     compare['Weight', 'Error'] = compare['Weight','Total'] - [target['holdings']['category_weighted'][name] for name in compare.index]
-    compare['Value', 'Error'] = compare['Weight', 'Error'] * compare['Value', 'Total']
+    compare['Value', 'Error'] = compare['Weight', 'Error'] * compare['Value', 'Total'].sum()
     #TODO reorder Value and Weight total, error columns
     return compare
 
 
+def account_names(cfg):
+    return [name for name in cfg['accounts']]
+
+
 def accounts_report(cfg):
-    for name in cfg['accounts']:
+    for name in account_names(cfg):
         acct = cfg['accounts'][name]
         acct_df = account_securities_df(cfg, acct['holdings']['securities'])
         print(name)
         print_df(acct_df)
-        print_df(account_categories_df(acct_df))
+        cats = account_categories_df(acct_df)
+        print_df(cats)
         print()
 
 
@@ -133,5 +138,7 @@ def generate_report(input):
     accounts_report(cfg)
     portfolios_report(cfg)
 
+
 if __name__ == "__main__":
+    #cfg = config.load_yaml('sample.yaml')
     generate_report('shahvir.yaml')

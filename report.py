@@ -129,8 +129,12 @@ def accounts_report(cfg):
         print()
 
 
+def portfolio_names(cfg):
+    return [name for name in cfg['portfolios']]
+
+
 def portfolios_report(cfg):
-    for name in cfg['portfolios']:
+    for name in portfolio_names(cfg):
         port = cfg['portfolios'][name]
         print(name)
         port_df = portfolio_df(cfg, port)

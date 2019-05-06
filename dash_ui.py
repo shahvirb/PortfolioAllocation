@@ -49,7 +49,9 @@ if __name__ == "__main__":
 
     app.layout = html.Div(
         [
+            dcc.Location(id="url"),
             navbar,
+            dbc.Container(id="page-content"),
             dbc.Container(
                 [
                     dcc.Interval(id="interval", interval=500, n_intervals=0),
@@ -105,4 +107,21 @@ if __name__ == "__main__":
         ]
     )
 
-    app.run_server(port=8888, debug=True)
+    @app.callback(Output("page-content", "children"), [Input("url", "pathname")])
+    def render_page_content(pathname):
+        if pathname in ["/", "/page-1"]:
+            return html.P("This is the content of page 1!")
+        elif pathname == "/page-2":
+            return html.P("This is the content of page 2. Yay!")
+        elif pathname == "/page-3":
+            return html.P("Oh cool, this is page 3!")
+        # If the user tries to reach a different page, return a 404 message
+        return dbc.Jumbotron(
+            [
+                html.H1("404: Not found", className="text-danger"),
+                html.Hr(),
+                html.P(f"The pathname {pathname} was not recognised..."),
+            ]
+        )
+
+    app.run_server(port=8887, debug=True)

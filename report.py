@@ -48,13 +48,19 @@ def flatten_multiindex_columns(df):
 def account_basic_df(cfg, account):
     categories = securities.SecurityCategories(cfg)
     df = pd.DataFrame()
-    for symbol,qty in account.items():
+    for symbol,qty in account['holdings']['securities'].items():
         df.at[symbol, 'Symbol'] = symbol
         df.at[symbol, 'Qty'] = qty
         price = securities.price(symbol)
         df.at[symbol, 'Price'] = price
         df.at[symbol, 'Value'] = price * qty
         df.at[symbol, 'Category'] = categories(symbol)
+    cash = pd.DataFrame({
+        'Symbol':['Cash'],
+        'Value': [account['holdings']['cash']],
+        'Category': 'Cash'
+    })
+    df = df.append(cash, ignore_index=True)
     df = df.set_index('Symbol')
     return df
 
@@ -86,7 +92,7 @@ def portfolio_df(cfg, portfolio):
 
     for name in accounts:
         acct = cfg['accounts'][name]
-        acct_df = account_basic_df(cfg, acct['holdings']['securities'])
+        acct_df = account_basic_df(cfg, acct)
         acct_df['Account'] = name
         portfolios.append(acct_df)
     port_df = pd.concat(portfolios)
@@ -103,6 +109,7 @@ def portfolio_target_comparison(target, pdf):
     compare['Weight', 'Total'] = compare['Weight'].sum(axis=1)
     compare['Weight', 'Error'] = compare['Weight','Total'] - [target['holdings']['category_weighted'][name] for name in compare.index]
     compare['Value', 'Error'] = compare['Weight', 'Error'] * compare['Value', 'Total'].sum()
+    assert compare['Value', 'Error'].sum() <= 0.01
     #TODO reorder Value and Weight total, error columns
     return compare
 
@@ -114,7 +121,7 @@ def account_names(cfg):
 def accounts_report(cfg):
     for name in account_names(cfg):
         acct = cfg['accounts'][name]
-        acct_df = account_securities_df(cfg, acct['holdings']['securities'])
+        acct_df = account_securities_df(cfg, acct)
         print(name)
         print_df(acct_df)
         cats = account_categories_df(acct_df)

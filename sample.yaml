@@ -9,7 +9,7 @@ accounts:
         BND: 1.0
         VXUS: 0.4
         VINIX: 1
-      cash: 5000.10
+      cash: 5000
   B_NonTaxed:
     holdings:
       securities:
@@ -35,3 +35,4 @@ target_portfolios:
         Domestic Stocks: 0.9
         Domestic Bonds: 0.1
         International Stocks: 0
+        Cash: 0

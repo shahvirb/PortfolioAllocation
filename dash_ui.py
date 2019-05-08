@@ -7,7 +7,15 @@ from dash.dependencies import Input, Output, State
 import report
 import config
 import plotly.graph_objs as go
+import urllib
 
+
+PAGEMAP = {
+    '/test': lambda x: html.P("This is just a test page"),
+}
+
+TEMPL_ACCT_HREF = '/accounts/{}'
+TEMPL_PORT_HREF = '/portfolios/{}'
 
 if __name__ == "__main__":
     app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
@@ -17,13 +25,13 @@ if __name__ == "__main__":
     navbar = dbc.NavbarSimple(
         children=[
             dbc.DropdownMenu(
-                children=[dbc.DropdownMenuItem(name, href="#") for name in report.account_names(cfg)],
+                children=[dbc.DropdownMenuItem(name, href=TEMPL_ACCT_HREF.format(name)) for name in report.account_names(cfg)],
                 nav=True,
                 in_navbar=True,
                 label="Accounts",
             ),
             dbc.DropdownMenu(
-                children=[dbc.DropdownMenuItem(name, href="#") for name in report.portfolio_names(cfg)],
+                children=[dbc.DropdownMenuItem(name, href=TEMPL_PORT_HREF.format(name)) for name in report.portfolio_names(cfg)],
                 nav=True,
                 in_navbar=True,
                 label="Portfolios",
@@ -32,6 +40,11 @@ if __name__ == "__main__":
         brand="PortfolioAllocation",
         sticky="top",
     )
+
+    for name in report.account_names(cfg):
+        PAGEMAP[TEMPL_ACCT_HREF.format(name)] = lambda x: html.P(name)
+    for name in report.portfolio_names(cfg):
+        PAGEMAP[TEMPL_PORT_HREF.format(name)] = lambda x: html.P(name)
 
     header = html.Div(
         [
@@ -109,18 +122,29 @@ if __name__ == "__main__":
 
     @app.callback(Output("page-content", "children"), [Input("url", "pathname")])
     def render_page_content(pathname):
-        if pathname in ["/", "/page-1"]:
-            return html.P("This is the content of page 1!")
-        elif pathname == "/page-2":
-            return html.P("This is the content of page 2. Yay!")
-        elif pathname == "/page-3":
-            return html.P("Oh cool, this is page 3!")
+        #TODO why is this callback invoked twice, first with None?
+        if not pathname:
+            return None
+
+        #HACK how do you use input queries in dash?
+        def lreplace(str, f, r):
+            loc = str.find(f)
+            if loc != -1:
+                return str[:loc] + r + str[loc+1:]
+            return str
+
+        corrected = lreplace(pathname, '@', '?')
+        parsed = urllib.parse.urlparse(corrected)
+
+        if parsed.path in PAGEMAP:
+            return PAGEMAP[parsed.path](parsed)
+
         # If the user tries to reach a different page, return a 404 message
         return dbc.Jumbotron(
             [
                 html.H1("404: Not found", className="text-danger"),
                 html.Hr(),
-                html.P(f"The pathname {pathname} was not recognised..."),
+                html.P(f"The pathname {parsed.path} was not recognised..."),
             ]
         )
 

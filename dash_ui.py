@@ -42,9 +42,14 @@ if __name__ == "__main__":
         sticky="top",
     )
 
-    for name in report.account_names(cfg):
-        PAGEMAP[TEMPL_ACCT_HREF.format(name)] = lambda x: html.P(name)
-    for name in report.portfolio_names(cfg):
+    def render_account_page(parsed):
+        for name in cfg.account_names():
+            df = report.account_basic_df(cfg, cfg.get_account(name))
+            return dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True)
+
+    for name in cfg.account_names():
+        PAGEMAP[TEMPL_ACCT_HREF.format(name)] = render_account_page
+    for name in cfg.portfolio_names():
         PAGEMAP[TEMPL_PORT_HREF.format(name)] = lambda x: html.P(name)
 
     header = html.Div(

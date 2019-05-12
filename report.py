@@ -1,4 +1,3 @@
-import yaml
 import pandas as pd
 import securities
 import qgrid
@@ -91,7 +90,7 @@ def portfolio_df(cfg, portfolio):
         accounts.update([act for pname in portfolio['portfolios'] for act in cfg['portfolios'][pname]['accounts']])
 
     for name in accounts:
-        acct = cfg['accounts'][name]
+        acct = cfg.get_account(name)
         acct_df = account_basic_df(cfg, acct)
         acct_df['Account'] = name
         portfolios.append(acct_df)
@@ -114,13 +113,9 @@ def portfolio_target_comparison(target, pdf):
     return compare
 
 
-def account_names(cfg):
-    return [name for name in cfg['accounts']]
-
-
 def accounts_report(cfg):
-    for name in account_names(cfg):
-        acct = cfg['accounts'][name]
+    for name in cfg.account_names():
+        acct = cfg.get_account(name)
         acct_df = account_securities_df(cfg, acct)
         print(name)
         print_df(acct_df)
@@ -129,12 +124,8 @@ def accounts_report(cfg):
         print()
 
 
-def portfolio_names(cfg):
-    return [name for name in cfg['portfolios']]
-
-
 def portfolios_report(cfg):
-    for name in portfolio_names(cfg):
+    for name in cfg.portfolio_names():
         port = cfg['portfolios'][name]
         print(name)
         port_df = portfolio_df(cfg, port)
@@ -145,11 +136,10 @@ def portfolios_report(cfg):
 
 
 def generate_report(input):
-    cfg = config.load_yaml(input)
+    cfg = config.UserConfig(input)
     accounts_report(cfg)
     portfolios_report(cfg)
 
 
 if __name__ == "__main__":
-    #cfg = config.load_yaml('sample.yaml')
     generate_report('shahvir.yaml')

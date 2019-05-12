@@ -17,21 +17,22 @@ PAGEMAP = {
 TEMPL_ACCT_HREF = '/accounts/{}'
 TEMPL_PORT_HREF = '/portfolios/{}'
 
+
 if __name__ == "__main__":
     app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 
-    cfg = config.load_yaml('sample.yaml')
+    cfg = config.UserConfig('sample.yaml')
 
     navbar = dbc.NavbarSimple(
         children=[
             dbc.DropdownMenu(
-                children=[dbc.DropdownMenuItem(name, href=TEMPL_ACCT_HREF.format(name)) for name in report.account_names(cfg)],
+                children=[dbc.DropdownMenuItem(name, href=TEMPL_ACCT_HREF.format(name)) for name in cfg.account_names()],
                 nav=True,
                 in_navbar=True,
                 label="Accounts",
             ),
             dbc.DropdownMenu(
-                children=[dbc.DropdownMenuItem(name, href=TEMPL_PORT_HREF.format(name)) for name in report.portfolio_names(cfg)],
+                children=[dbc.DropdownMenuItem(name, href=TEMPL_PORT_HREF.format(name)) for name in cfg.portfolio_names()],
                 nav=True,
                 in_navbar=True,
                 label="Portfolios",
@@ -58,7 +59,7 @@ if __name__ == "__main__":
         className="mt-4",
     )
 
-    #df = report.account_basic_df(cfg, acct_names[0])
+    # df = report.account_basic_df(cfg, acct_names[0])
 
     app.layout = html.Div(
         [

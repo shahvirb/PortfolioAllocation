@@ -43,9 +43,9 @@ if __name__ == "__main__":
     )
 
     def render_account_page(parsed):
-        for name in cfg.account_names():
-            df = report.account_basic_df(cfg, cfg.get_account(name))
-            return dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True)
+        name = parsed.path.split('/')[2]
+        df = report.account_basic_df(cfg, cfg.get_account(name))
+        return dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True)
 
     for name in cfg.account_names():
         PAGEMAP[TEMPL_ACCT_HREF.format(name)] = render_account_page
@@ -76,50 +76,6 @@ if __name__ == "__main__":
                     dcc.Interval(id="interval", interval=500, n_intervals=0),
                     header,
                     html.Br(),
-
-                    # dash_table.DataTable(
-                    #     id='table',
-                    #     columns=[{"name": i, "id": i} for i in df.columns],
-                    #     data=df.to_dict('records'),
-                    # ),
-
-                    dcc.Graph(
-                        figure=go.Figure(
-                            data=[
-                                go.Bar(
-                                    x=[1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003,
-                                       2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012],
-                                    y=[219, 146, 112, 127, 124, 180, 236, 207, 236, 263,
-                                       350, 430, 474, 526, 488, 537, 500, 439],
-                                    name='Rest of world',
-                                    marker=go.bar.Marker(
-                                        color='rgb(55, 83, 109)'
-                                    )
-                                ),
-                                go.Bar(
-                                    x=[1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003,
-                                       2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012],
-                                    y=[16, 13, 10, 11, 28, 37, 43, 55, 56, 88, 105, 156, 270,
-                                       299, 340, 403, 549, 499],
-                                    name='China',
-                                    marker=go.bar.Marker(
-                                        color='rgb(26, 118, 255)'
-                                    )
-                                )
-                            ],
-                            layout=go.Layout(
-                                title='US Export of Plastic Scrap',
-                                showlegend=True,
-                                legend=go.layout.Legend(
-                                    x=0,
-                                    y=1.0
-                                ),
-                                margin=go.layout.Margin(l=40, r=0, t=40, b=30)
-                            )
-                        ),
-                        style={'height': 300},
-                        id='my-graph'
-                    ),
                     html.Div(style={"height": "200px"}),
                 ]
             ),

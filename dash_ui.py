@@ -2,55 +2,25 @@ import dash
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
-import dash_table
 from dash.dependencies import Input, Output, State
-import report
-import config
-import plotly.graph_objs as go
 import urllib
+import uicontrollers
 
 
+# TODO surely there's a better way than rolling my own routing mechanism
 PAGEMAP = {
     '/test': lambda x: html.P("This is just a test page"),
 }
 
-TEMPL_ACCT_HREF = '/accounts/{}'
-TEMPL_PORT_HREF = '/portfolios/{}'
-
-
 if __name__ == "__main__":
     app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
+    uictrl = uicontrollers.UIController('sample.yaml')
+    navbar = uictrl.navbar()
+    PAGEMAP.update(uictrl.pagemap())
 
-    cfg = config.UserConfig('sample.yaml')
-
-    navbar = dbc.NavbarSimple(
-        children=[
-            dbc.DropdownMenu(
-                children=[dbc.DropdownMenuItem(name, href=TEMPL_ACCT_HREF.format(name)) for name in cfg.account_names()],
-                nav=True,
-                in_navbar=True,
-                label="Accounts",
-            ),
-            dbc.DropdownMenu(
-                children=[dbc.DropdownMenuItem(name, href=TEMPL_PORT_HREF.format(name)) for name in cfg.portfolio_names()],
-                nav=True,
-                in_navbar=True,
-                label="Portfolios",
-            ),
-        ],
-        brand="PortfolioAllocation",
-        sticky="top",
-    )
-
-    def render_account_page(parsed):
-        name = parsed.path.split('/')[2]
-        df = report.account_basic_df(cfg, cfg.get_account(name))
-        return dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True)
-
-    for name in cfg.account_names():
-        PAGEMAP[TEMPL_ACCT_HREF.format(name)] = render_account_page
-    for name in cfg.portfolio_names():
-        PAGEMAP[TEMPL_PORT_HREF.format(name)] = lambda x: html.P(name)
+    # def render_account_page(parsed):
+    #     name = parsed.path.split('/')[2]
+    #     return uictrl.account_page(name)
 
     header = html.Div(
         [
@@ -88,13 +58,13 @@ if __name__ == "__main__":
         if not pathname:
             return None
 
-        #HACK how do you use input queries in dash?
+        #HACK how do you use input queries in dash? For now just use '@' to denote
+        # the start of the query string
         def lreplace(str, f, r):
             loc = str.find(f)
             if loc != -1:
                 return str[:loc] + r + str[loc+1:]
             return str
-
         corrected = lreplace(pathname, '@', '?')
         parsed = urllib.parse.urlparse(corrected)
 

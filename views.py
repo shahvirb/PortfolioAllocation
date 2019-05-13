@@ -36,30 +36,24 @@ class View:
         # TODO do something with the name
         return dbc.Table.from_dataframe(basic, striped=True, bordered=True, hover=True)
 
-    def layout(self, navbar):
-        header = html.Div(
+    def header(self, text):
+        return html.Div(
             [
-                html.P(
-                    [
-                        "PortfolioAllocation",
-                        html.Code(""),
-                    ]
-                )
+                html.P([text, html.Code("")])
             ],
             className="mt-4",
         )
 
+    def layout(self, navbar):
         return html.Div(
             [
                 dcc.Location(id="url"),
                 navbar,
-                dbc.Container(id="page-content"),
                 dbc.Container(
                     [
                         dcc.Interval(id="interval", interval=500, n_intervals=0),
-                        header,
-                        html.Br(),
-                        html.Div(style={"height": "200px"}),
+                        self.header('PortfolioAllocation'),
+                        dbc.Container(id="page-content"),
                     ]
                 ),
             ]

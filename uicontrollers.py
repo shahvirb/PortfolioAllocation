@@ -26,3 +26,6 @@ class UIController:
         for name in self.cfg.portfolio_names():
             pagemap[views.TEMPL_PORT_HREF.format(name)] = lambda x: html.P(name)
         return pagemap
+
+    def layout(self):
+        return self.view.layout(self.navbar())

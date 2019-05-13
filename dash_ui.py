@@ -1,6 +1,5 @@
 import dash
 import dash_bootstrap_components as dbc
-import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State
 import urllib
@@ -13,44 +12,11 @@ PAGEMAP = {
 }
 
 if __name__ == "__main__":
-    app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
     uictrl = uicontrollers.UIController('sample.yaml')
-    navbar = uictrl.navbar()
     PAGEMAP.update(uictrl.pagemap())
 
-    # def render_account_page(parsed):
-    #     name = parsed.path.split('/')[2]
-    #     return uictrl.account_page(name)
-
-    header = html.Div(
-        [
-            html.P(
-                [
-                    "PortfolioAllocation",
-                    html.Code(""),
-                ]
-            )
-        ],
-        className="mt-4",
-    )
-
-    # df = report.account_basic_df(cfg, acct_names[0])
-
-    app.layout = html.Div(
-        [
-            dcc.Location(id="url"),
-            navbar,
-            dbc.Container(id="page-content"),
-            dbc.Container(
-                [
-                    dcc.Interval(id="interval", interval=500, n_intervals=0),
-                    header,
-                    html.Br(),
-                    html.Div(style={"height": "200px"}),
-                ]
-            ),
-        ]
-    )
+    app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
+    app.layout = uictrl.layout()
 
     @app.callback(Output("page-content", "children"), [Input("url", "pathname")])
     def render_page_content(pathname):
@@ -72,6 +38,7 @@ if __name__ == "__main__":
             return PAGEMAP[parsed.path](parsed)
 
         # If the user tries to reach a different page, return a 404 message
+        # TODO move this to views.py
         return dbc.Jumbotron(
             [
                 html.H1("404: Not found", className="text-danger"),

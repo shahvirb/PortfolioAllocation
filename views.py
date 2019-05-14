@@ -33,8 +33,12 @@ class View:
         )
 
     def account_page(self, name, basic):
-        # TODO do something with the name
-        return dbc.Table.from_dataframe(basic, striped=True, bordered=True, hover=True)
+        return dbc.Container(
+            [
+                self.header(name),
+                dbc.Table.from_dataframe(basic, striped=True, bordered=True, hover=True),
+            ]
+        )
 
     def header(self, text):
         return html.Div(
@@ -52,9 +56,12 @@ class View:
                 dbc.Container(
                     [
                         dcc.Interval(id="interval", interval=500, n_intervals=0),
-                        self.header('PortfolioAllocation'),
+                        #self.header('PortfolioAllocation'),
                         dbc.Container(id="page-content"),
                     ]
                 ),
             ]
         )
+
+    def home_page(self):
+        return self.header('Welcome to PortfolioAllocation')

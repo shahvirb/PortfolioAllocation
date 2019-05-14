@@ -20,7 +20,9 @@ class UIController:
         return self.account_page(name)
 
     def pagemap(self):
-        pagemap = {}
+        pagemap = {
+            '/': self.render_home_page
+        }
         for name in self.cfg.account_names():
             pagemap[views.TEMPL_ACCT_HREF.format(name)] = self.render_account_page
         for name in self.cfg.portfolio_names():
@@ -29,3 +31,6 @@ class UIController:
 
     def layout(self):
         return self.view.layout(self.navbar())
+
+    def render_home_page(self, parsed):
+        return self.view.home_page()

@@ -38,3 +38,5 @@ class UserConfig:
     def get_account(self, name):
         return self.cfg['accounts'][name]
 
+    def get_portfolio(self, name):
+        return self.cfg['portfolios'][name]

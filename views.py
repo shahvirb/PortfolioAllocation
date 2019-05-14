@@ -67,11 +67,18 @@ class View:
         )
 
     def account_page(self, name, basic, securities, categories):
-
         return dbc.Container(
             [
                 self.titled_df(name, basic),
                 self.titled_df('Securities', securities),
                 self.titled_df('Categories', categories),
+            ]
+        )
+
+    def portfolio_page(self, name, portfolio, compare):
+        return dbc.Container(
+            [
+                self.titled_df(name, portfolio),
+                self.titled_df('Target Portfolio Comparison', compare),
             ]
         )

@@ -4,6 +4,10 @@ import report
 import views
 
 
+def base_path(parsed):
+    return parsed.path.split('/')[2]
+
+
 class UIController:
     def __init__(self, path):
         self.cfg = config.UserConfig(path)
@@ -12,25 +16,22 @@ class UIController:
     def navbar(self):
         return self.view.navbar(self.cfg.account_names(), self.cfg.portfolio_names())
 
-    def account_page(self, name):
+    def account_page(self, parsed):
+        name = base_path(parsed)
         account = self.cfg.get_account(name)
         basic_df = report.account_basic_df(self.cfg, account)
         securities_df = report.account_securities_df(self.cfg, account)
         categories_df = report.account_categories_df(securities_df)
         return self.view.account_page(name, basic_df, securities_df, categories_df)
 
-    def render_account_page(self, parsed):
-        name = parsed.path.split('/')[2]
-        return self.account_page(name)
-
     def pagemap(self):
         pagemap = {
             '/': self.render_home_page
         }
         for name in self.cfg.account_names():
-            pagemap[views.TEMPL_ACCT_HREF.format(name)] = self.render_account_page
+            pagemap[views.TEMPL_ACCT_HREF.format(name)] = self.account_page
         for name in self.cfg.portfolio_names():
-            pagemap[views.TEMPL_PORT_HREF.format(name)] = lambda x: html.P(name)
+            pagemap[views.TEMPL_PORT_HREF.format(name)] = self.portfolio_page
         return pagemap
 
     def layout(self):
@@ -38,3 +39,10 @@ class UIController:
 
     def render_home_page(self, parsed):
         return self.view.home_page()
+
+    def portfolio_page(self, parsed):
+        name = base_path(parsed)
+        port = self.cfg.get_portfolio(name)
+        portfolio_df = report.portfolio_df(self.cfg, port)
+        compare_df = report.portfolio_target_comparison(self.cfg, port)
+        return self.view.portfolio_page(name, portfolio_df, compare_df)

@@ -60,8 +60,8 @@ def account_basic_df(cfg, account):
         'Category': 'Cash'
     })
     df = df.append(cash, ignore_index=True)
-    df = df.set_index('Symbol', drop=False)
-
+    #df = df.set_index('Symbol', drop=False)
+    df = df.reset_index()
     return df[['Symbol', 'Category', 'Price', 'Qty', 'Value']]
 
 
@@ -97,11 +97,10 @@ def portfolio_df(cfg, portfolio):
         portfolios.append(acct_df)
     port_df = pd.concat(portfolios)
     port_df['Weight'] = port_df['Value'] / port_df['Value'].sum()
-    port_df = port_df.reset_index().set_index('Account')
-    return port_df
+    return port_df[['Account', 'Symbol', 'Category', 'Price', 'Qty', 'Value', 'Weight']]
 
 
-def portfolio_target_comparison(target, pdf):
+def portfolio_comparison(target, pdf):
     dedupe = pdf.groupby(['Symbol', 'Category']).sum().reset_index()
     #report.print_df(dedupe.reset_index())
     compare = dedupe.pivot(index='Category', columns='Symbol', values=['Value', 'Weight'])
@@ -111,7 +110,12 @@ def portfolio_target_comparison(target, pdf):
     compare['Value', 'Error'] = compare['Weight', 'Error'] * compare['Value', 'Total'].sum()
     assert compare['Value', 'Error'].sum() <= 0.01
     #TODO reorder Value and Weight total, error columns
-    return compare
+    compare = flatten_multiindex_columns(compare).reset_index()
+    return compare[['Category', 'Value Total', 'Value Error', 'Weight Total', 'Weight Error']]
+
+
+def portfolio_target_comparison(cfg, port):
+    return portfolio_comparison(cfg['target_portfolios'][port['target']], portfolio_df(cfg, port))
 
 
 def accounts_report(cfg):
@@ -131,7 +135,7 @@ def portfolios_report(cfg):
         print(name)
         port_df = portfolio_df(cfg, port)
         print_df(port_df)
-        compare = portfolio_target_comparison(cfg['target_portfolios'][port['target']], port_df)
+        compare = portfolio_comparison(cfg['target_portfolios'][port['target']], port_df)
         print_df(compare)
         print()
 

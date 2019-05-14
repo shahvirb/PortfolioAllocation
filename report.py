@@ -60,8 +60,9 @@ def account_basic_df(cfg, account):
         'Category': 'Cash'
     })
     df = df.append(cash, ignore_index=True)
-    df = df.set_index('Symbol')
-    return df
+    df = df.set_index('Symbol', drop=False)
+
+    return df[['Symbol', 'Category', 'Price', 'Qty', 'Value']]
 
 
 def account_securities_df(cfg, account):
@@ -142,4 +143,4 @@ def generate_report(input):
 
 
 if __name__ == "__main__":
-    generate_report('shahvir.yaml')
+    generate_report('sample.yaml')

@@ -13,7 +13,11 @@ class UIController:
         return self.view.navbar(self.cfg.account_names(), self.cfg.portfolio_names())
 
     def account_page(self, name):
-        return self.view.account_page(name, report.account_basic_df(self.cfg, self.cfg.get_account(name)))
+        account = self.cfg.get_account(name)
+        basic_df = report.account_basic_df(self.cfg, account)
+        securities_df = report.account_securities_df(self.cfg, account)
+        categories_df = report.account_categories_df(securities_df)
+        return self.view.account_page(name, basic_df, securities_df, categories_df)
 
     def render_account_page(self, parsed):
         name = parsed.path.split('/')[2]

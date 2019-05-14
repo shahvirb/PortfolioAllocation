@@ -32,14 +32,6 @@ class View:
             sticky="top",
         )
 
-    def account_page(self, name, basic):
-        return dbc.Container(
-            [
-                self.header(name),
-                dbc.Table.from_dataframe(basic, striped=True, bordered=True, hover=True),
-            ]
-        )
-
     def header(self, text):
         return html.Div(
             [
@@ -65,3 +57,21 @@ class View:
 
     def home_page(self):
         return self.header('Welcome to PortfolioAllocation')
+
+    def titled_df(self, title, df):
+        return dbc.Container(
+            [
+                self.header(title),
+                dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True),
+            ]
+        )
+
+    def account_page(self, name, basic, securities, categories):
+
+        return dbc.Container(
+            [
+                self.titled_df(name, basic),
+                self.titled_df('Securities', securities),
+                self.titled_df('Categories', categories),
+            ]
+        )

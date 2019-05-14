@@ -78,7 +78,7 @@ def account_categories_df(df):
     cats = cats.sort_values(by=['Weight'], ascending=False)
     cats.at['Total', 'Value'] = cats['Value'].sum()
     cats.at['Total', 'Weight'] = cats['Weight'].sum()
-    return cats
+    return cats.reset_index()
 
 
 def portfolio_df(cfg, portfolio):

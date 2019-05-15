@@ -1,6 +1,7 @@
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
+import dash_table
 
 TEMPL_ACCT_HREF = '/accounts/{}'
 TEMPL_PORT_HREF = '/portfolios/{}'
@@ -68,7 +69,13 @@ class View:
         return dbc.Container(
             [
                 self.header(title),
-                dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True),
+                #dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, responsive=True),
+                dash_table.DataTable(
+                    columns=[{"name": i, "id": i} for i in df.columns],
+                    data=df.to_dict('records'),
+                    #filtering=True,
+                    sorting=True,
+                )
             ]
         )
 

@@ -9,7 +9,9 @@ def price(symbol, raises=False):
     try:
         return pyEX.price(symbol)
     except pyEX.PyEXception as e:
-        return e if raises else 0
+        if raises:
+            raise e
+    return 0
 
 #@functools.lru_cache(maxsize=MEMO_SIZE)
 # def category(cfg, symbol):
@@ -50,8 +52,14 @@ def symbol_categories_df(cfg):
     for s in syms:
         df.at[s, 'Symbol'] = s
         df.at[s, 'Category'] = cats.category(s, default='{} [Default]'.format(cats.default_category))
-    df.set_index('Symbol', inplace=True)
-    df.sort_values('Symbol', inplace=True)
+        pr = None
+        try:
+            pr = price(s, raises=True)
+        except pyEX.PyEXception as e:
+            pass
+        df.at[s, 'Price'] = pr
+    df = df.set_index('Symbol').reset_index().sort_values('Symbol')
+
     return df
 
 

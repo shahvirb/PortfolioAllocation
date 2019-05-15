@@ -13,6 +13,7 @@ class View:
     def navbar(self, accounts, portfolios):
         return dbc.NavbarSimple(
             children=[
+                dbc.NavItem(dbc.NavLink('Home', href='/')),
                 dbc.DropdownMenu(
                     children=[dbc.DropdownMenuItem(name, href=TEMPL_ACCT_HREF.format(name)) for name in
                               accounts],
@@ -55,8 +56,13 @@ class View:
             ]
         )
 
-    def home_page(self):
-        return self.header('Welcome to PortfolioAllocation')
+    def home_page(self, securities):
+        return dbc.Container(
+            [
+                self.titled_df('Securities', securities)
+            ]
+        )
+
 
     def titled_df(self, title, df):
         return dbc.Container(

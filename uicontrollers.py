@@ -2,6 +2,7 @@ import config
 import dash_html_components as html
 import report
 import views
+import securities
 
 
 def base_path(parsed):
@@ -38,7 +39,8 @@ class UIController:
         return self.view.layout(self.navbar())
 
     def render_home_page(self, parsed):
-        return self.view.home_page()
+        securities_df = securities.symbol_categories_df(self.cfg)
+        return self.view.home_page(securities_df)
 
     def portfolio_page(self, parsed):
         name = base_path(parsed)

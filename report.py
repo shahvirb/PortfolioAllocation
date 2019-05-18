@@ -109,7 +109,6 @@ def portfolio_comparison(target, pdf):
     compare['Weight', 'Error'] = compare['Weight','Total'] - [target['holdings']['category_weighted'][name] for name in compare.index]
     compare['Value', 'Error'] = compare['Weight', 'Error'] * compare['Value', 'Total'].sum()
     assert compare['Value', 'Error'].sum() <= 0.01
-    #TODO reorder Value and Weight total, error columns
     compare = flatten_multiindex_columns(compare).reset_index()
     return compare[['Category', 'Value Total', 'Value Error', 'Weight Total', 'Weight Error']]
 

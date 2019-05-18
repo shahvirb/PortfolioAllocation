@@ -67,8 +67,8 @@ def account_basic_df(cfg, account):
 
 def account_securities_df(cfg, account):
     df = account_basic_df(cfg, account)
-    df.at['Total','Value'] = df['Value'].sum()
-    df['Weight'] = df['Value'] / df.at['Total','Value']
+    # df.at['Total','Value'] = df['Value'].sum()
+    df['Weight'] = df['Value'] / df['Value'].sum()
     return df
 
 
@@ -76,8 +76,8 @@ def account_categories_df(df):
     cats = df.groupby('Category')['Value'].sum().to_frame()
     cats['Weight'] = cats['Value'] / cats['Value'].sum()
     cats = cats.sort_values(by=['Weight'], ascending=False)
-    cats.at['Total', 'Value'] = cats['Value'].sum()
-    cats.at['Total', 'Weight'] = cats['Weight'].sum()
+    # cats.at['Total', 'Value'] = cats['Value'].sum()
+    # cats.at['Total', 'Weight'] = cats['Weight'].sum()
     return cats.reset_index()
 
 

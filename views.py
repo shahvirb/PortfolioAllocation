@@ -2,6 +2,7 @@ import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_table
+import plot
 
 TEMPL_ACCT_HREF = '/accounts/{}'
 TEMPL_PORT_HREF = '/portfolios/{}'
@@ -64,7 +65,6 @@ class View:
             ]
         )
 
-
     def titled_df(self, title, df):
         return dbc.Container(
             [
@@ -85,6 +85,7 @@ class View:
                 self.titled_df(name, basic),
                 self.titled_df('Securities', securities),
                 self.titled_df('Categories', categories),
+                dcc.Graph(figure=plot.category_weights(categories)),
             ]
         )
 
@@ -92,6 +93,7 @@ class View:
         return dbc.Container(
             [
                 self.titled_df(name, portfolio),
+                dcc.Graph(figure=plot.category_weights(portfolio)),
                 self.titled_df('Target Portfolio Comparison', compare),
             ]
         )

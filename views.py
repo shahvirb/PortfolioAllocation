@@ -79,13 +79,14 @@ class View:
             ]
         )
 
-    def account_page(self, name, basic, securities, categories):
+    def account_page(self, name, basic, securities, categories, hierarchy):
         return dbc.Container(
             [
                 self.titled_df(name, basic),
                 self.titled_df('Securities', securities),
                 self.titled_df('Categories', categories),
                 dcc.Graph(figure=plot.category_weights(categories)),
+                dcc.Graph(figure=plot.category_weights_sunburst(hierarchy))
             ]
         )
 

@@ -81,6 +81,20 @@ def account_categories_df(df):
     return cats.reset_index()
 
 
+def account_hierarchy(securities_df):
+    categories = securities_df.groupby(['Category', 'Weight']).sum().reset_index().rename(index=str, columns={'Category': 'labels'})
+    categories['parents'] = 'Weights'
+    symbols = securities_df.groupby(['Symbol', 'Category', 'Weight']).sum().reset_index().rename(index=str, columns={'Symbol': 'labels', 'Category': 'parents'})
+    merged = categories.merge(symbols, how='outer')
+    #merged.set_index('labels')
+    root = pd.DataFrame({
+        'labels': 'Weights',
+        'parents': '',
+        'Weight': merged['Weight'].sum()
+    }, index=[0])
+
+    return pd.concat([root, merged])
+
 def portfolio_df(cfg, portfolio):
     portfolios = []
 

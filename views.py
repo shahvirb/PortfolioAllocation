@@ -80,22 +80,38 @@ class View:
             ]
         )
 
+
+
     def account_page(self, name, basic, securities, categories, hierarchy):
-        return dbc.Container(
-            [
-                self.titled_df(name, basic),
-                self.titled_df('Securities', securities),
-                self.titled_df('Categories', categories),
-                dcc.Graph(figure=plot.category_weights(categories)),
-                dcc.Graph(figure=plot.category_weights_sunburst(hierarchy))
-            ]
-        )
+        col0 = [
+            self.titled_df(name, basic),
+            self.titled_df('Securities', securities),
+            self.titled_df('Categories', categories),
+        ]
+
+        col1 = [
+            dcc.Graph(figure=plot.category_weights(categories)),
+            dcc.Graph(figure=plot.category_weights_sunburst(hierarchy)),
+        ]
+        return graph_layout(col0, col1)
 
     def portfolio_page(self, name, portfolio, compare):
-        return dbc.Container(
-            [
-                self.titled_df(name, portfolio),
-                dcc.Graph(figure=plot.category_weights(portfolio)),
-                self.titled_df('Target Portfolio Comparison', compare),
-            ]
-        )
+        col0 = [
+            self.titled_df(name, portfolio),
+            self.titled_df('Target Portfolio Comparison', compare),
+        ]
+        col1 = [
+            dcc.Graph(figure=plot.category_weights(portfolio)),
+        ]
+        return graph_layout(col0, col1)
+
+
+def graph_layout(col0, col1):
+    return dbc.Container(
+        [
+            dbc.Row([
+                dbc.Col(col0),
+                dbc.Col(col1, width=4)
+            ])
+        ]
+    )

@@ -1,4 +1,7 @@
 import pandas as pd
+from dash_table import FormatTemplate as FormatTemplate
+from dash_table.Format import Format
+
 import securities
 import qgrid
 import config
@@ -157,6 +160,16 @@ def generate_report(input):
     cfg = config.UserConfig(input)
     accounts_report(cfg)
     portfolios_report(cfg)
+
+
+def df_formatter():
+    return {
+        'Price': {'type': 'numeric', 'format': FormatTemplate.money(2)},
+        #Format(precision=0, scheme=Scheme.fixed, symbol=Symbol.yes, symbol_prefix='$'),
+        'Value': {'type': 'numeric', 'format': FormatTemplate.money(0)},
+        'Weight': {'type': 'numeric', 'format': FormatTemplate.percentage(1)},
+        #'Qty': {'type': 'numeric', 'format': Format(precision=.3)},
+    }
 
 
 if __name__ == "__main__":

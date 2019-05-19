@@ -3,14 +3,15 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_table
 import plot
+import formatdf
+import report
 
 TEMPL_ACCT_HREF = '/accounts/{}'
 TEMPL_PORT_HREF = '/portfolios/{}'
 
 class View:
     def __init__(self):
-        # Why is this an object?
-        pass
+        self.dfrender = formatdf.DFFormatter(report.df_formatter())
 
     def navbar(self, accounts, portfolios):
         return dbc.NavbarSimple(
@@ -71,8 +72,8 @@ class View:
                 self.header(title),
                 #dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, responsive=True),
                 dash_table.DataTable(
-                    columns=[{"name": i, "id": i} for i in df.columns],
-                    data=df.to_dict('records'),
+                    data = df.to_dict('records'),
+                    columns = self.dfrender.format(df),
                     #filtering=True,
                     sorting=True,
                 )

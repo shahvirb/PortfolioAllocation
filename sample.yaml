@@ -8,7 +8,6 @@ accounts:
         SPY: 5.5
         BND: 1.0
         VXUS: 0.4
-        VINIX: 1
       cash: 5000
   B_NonTaxed:
     holdings:

@@ -87,7 +87,9 @@ def account_categories_df(df):
 def account_hierarchy(securities_df):
     categories = securities_df.groupby(['Category', 'Weight']).sum().reset_index().rename(index=str, columns={'Category': 'labels'})
     categories['parents'] = 'Weights'
-    symbols = securities_df.groupby(['Symbol', 'Category', 'Weight']).sum().reset_index().rename(index=str, columns={'Symbol': 'labels', 'Category': 'parents'})
+    symbols = securities_df.groupby(['Symbol', 'Category', 'Weight']).sum()
+    symbols = symbols.drop('Cash') # This causes a circular reference because the symbol name == category name
+    symbols = symbols.reset_index().rename(index=str, columns={'Symbol': 'labels', 'Category': 'parents'})
     merged = categories.merge(symbols, how='outer')
     #merged.set_index('labels')
     root = pd.DataFrame({
@@ -95,8 +97,10 @@ def account_hierarchy(securities_df):
         'parents': '',
         'Weight': merged['Weight'].sum()
     }, index=[0])
-
-    return pd.concat([root, merged])
+    merged = pd.concat([root, merged])
+    # Ensure no circular references
+    assert True not in set(merged['labels'] == merged['parents'])
+    return merged
 
 def portfolio_df(cfg, portfolio):
     portfolios = []

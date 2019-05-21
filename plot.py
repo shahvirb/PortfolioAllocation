@@ -17,14 +17,10 @@ def category_weights(df):
 
 def category_weights_sunburst(df):
     trace = go.Sunburst(
+        #ids = list(df['labels'].values),
         labels = list(df['labels'].values),
         parents = list(df['parents'].values),
         values = list(df['Weight'].values),
-    )
-    trace = go.Sunburst(
-        labels=["Eve", "Cain", "Seth", "Enos", "Noam", "Abel", "Awan", "Enoch", "Azura"],
-        parents=["", "Eve", "Eve", "Seth", "Seth", "Eve", "Eve", "Awan", "Eve"],
-        values=[10, 14, 12, 10, 2, 6, 6, 4, 4],
     )
     layout = go.Layout(
         title = 'Category Weights',

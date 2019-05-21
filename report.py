@@ -95,7 +95,7 @@ def account_hierarchy(securities_df):
     root = pd.DataFrame({
         'labels': 'Weights',
         'parents': '',
-        'Weight': merged['Weight'].sum()
+        'Weight': categories['Weight'].sum()
     }, index=[0])
     merged = pd.concat([root, merged])
     # Ensure no circular references

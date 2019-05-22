@@ -1,3 +1,4 @@
+import click
 import dash
 import dash_bootstrap_components as dbc
 import dash_html_components as html
@@ -11,8 +12,10 @@ PAGEMAP = {
     '/test': lambda x: html.P("This is just a test page"),
 }
 
-if __name__ == "__main__":
-    uictrl = uicontrollers.UIController('sample.yaml')
+@click.command()
+@click.option('--config')
+def start_server(config):
+    uictrl = uicontrollers.UIController(config)
     PAGEMAP.update(uictrl.pagemap())
 
     app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
@@ -46,5 +49,11 @@ if __name__ == "__main__":
                 html.P(f"The pathname {parsed.path} was not recognised..."),
             ]
         )
-
     app.run_server(port=8887, debug=True)
+
+
+def main():
+    return start_server(obj={})
+
+if __name__ == "__main__":
+    main()

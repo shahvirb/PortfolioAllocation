@@ -85,9 +85,10 @@ def account_categories_df(df):
 
 
 def account_hierarchy(securities_df):
-    categories = securities_df.groupby(['Category', 'Weight']).sum().reset_index().rename(index=str, columns={'Category': 'labels'})
+    categories = securities_df.groupby(['Category']).sum().reset_index().rename(index=str, columns={'Category': 'labels'})
     root_label = 'Weights'
     categories['parents'] = root_label
+    categories['Weight'] = 0 # because of branchvalues == remainder
     symbols = securities_df.groupby(['Symbol', 'Category', 'Weight']).sum()
     symbols = symbols.drop('Cash') # This causes a circular reference because the symbol name == category name
     symbols = symbols.reset_index().rename(index=str, columns={'Symbol': 'labels', 'Category': 'parents'})
@@ -96,7 +97,7 @@ def account_hierarchy(securities_df):
     root = pd.DataFrame({
         'labels': root_label,
         'parents': '',
-        'Weight': 0 # categories['Weight'].sum()
+        'Weight': 0,
     }, index=[0])
     merged = pd.concat([root, merged])
     # Ensure no circular references

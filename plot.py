@@ -16,11 +16,13 @@ def category_weights(df):
 
 
 def category_weights_sunburst(df):
+    #print([(df['labels'].iloc[i], df['parents'].iloc[i], df['Weight'].iloc[i]) for i in range(len(df['labels']))])
     trace = go.Sunburst(
         #ids = list(df['labels'].values),
         labels = list(df['labels'].values),
         parents = list(df['parents'].values),
         values = list(df['Weight'].values),
+        branchvalues = 'remainder',
     )
     layout = go.Layout(
         title = 'Category Weights',

@@ -50,10 +50,11 @@ def flatten_multiindex_columns(df):
 def account_basic_df(cfg, account):
     categories = securities.SecurityCategories(cfg)
     df = pd.DataFrame()
+    datasource = securities.SecurityData()
     for symbol,qty in account['holdings']['securities'].items():
         df.at[symbol, 'Symbol'] = symbol
         df.at[symbol, 'Qty'] = qty
-        price = securities.price(symbol)
+        price = datasource.price(symbol)
         df.at[symbol, 'Price'] = price
         df.at[symbol, 'Value'] = price * qty
         df.at[symbol, 'Category'] = categories(symbol)
@@ -103,6 +104,7 @@ def account_hierarchy(securities_df):
     # Ensure no circular references
     assert True not in set(merged['labels'] == merged['parents'])
     return merged
+
 
 def portfolio_df(cfg, portfolio):
     portfolios = []

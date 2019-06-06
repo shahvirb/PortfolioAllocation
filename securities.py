@@ -2,24 +2,26 @@ import pandas as pd
 import pyEX
 import functools
 
-MEMO_SIZE = 32
+MEMO_SIZE = 128
 
-@functools.lru_cache(maxsize=MEMO_SIZE)
-def price(symbol, raises=False):
-    try:
-        return pyEX.price(symbol)
-    except pyEX.PyEXception as e:
-        if raises:
-            raise e
-    return 0
+class SecurityData():
+    def __init__(self, apikey=None):
+        if not apikey:
+            try:
+                import iexapikey
+                apikey = iexapikey.IEX_KEY
+            except ModuleNotFoundError as e:
+                pass
+        self.client = pyEX.Client(apikey)
 
-#@functools.lru_cache(maxsize=MEMO_SIZE)
-# def category(cfg, symbol):
-#     categories = cfg['security_categorization']['categories']
-#     for c in categories:
-#         if symbol in categories[c]:
-#             return c
-#     return cfg['security_categorization']['default']
+    @functools.lru_cache(maxsize=MEMO_SIZE)
+    def price(self, symbol, raises=False):
+        try:
+            return self.client.price(symbol)
+        except pyEX.PyEXception as e:
+            if raises:
+                raise e
+        return 0
 
 
 class SecurityCategories():
@@ -49,12 +51,13 @@ def symbol_categories_df(cfg):
             syms.add(s)
     cats = SecurityCategories(cfg)
     df = pd.DataFrame()
+    datasource = SecurityData()
     for s in syms:
         df.at[s, 'Symbol'] = s
         df.at[s, 'Category'] = cats.category(s, default='{} [Default]'.format(cats.default_category))
         pr = None
         try:
-            pr = price(s, raises=True)
+            pr = datasource.price(s, raises=True)
         except pyEX.PyEXception as e:
             pass
         df.at[s, 'Price'] = pr

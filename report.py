@@ -90,8 +90,9 @@ def account_hierarchy(securities_df):
     root_label = 'Weights'
     categories['parents'] = root_label
     categories['Weight'] = 0 # because of branchvalues == remainder
-    symbols = securities_df.groupby(['Symbol', 'Category', 'Weight']).sum()
+    symbols = securities_df.groupby(['Symbol', 'Category']).sum()
     symbols = symbols.drop('Cash') # This causes a circular reference because the symbol name == category name
+    #TODO this causes cash weight to be zero
     symbols = symbols.reset_index().rename(index=str, columns={'Symbol': 'labels', 'Category': 'parents'})
     merged = categories.merge(symbols, how='outer')
     #merged.set_index('labels')
@@ -140,6 +141,14 @@ def portfolio_comparison(target, pdf):
 
 def portfolio_target_comparison(cfg, port):
     return portfolio_comparison(cfg['target_portfolios'][port['target']], portfolio_df(cfg, port))
+
+
+def portfolio_hierarchy(pdf):
+    hierarchy = account_hierarchy(pdf)
+    hierarchy['Weight'] = 0 # because branch_values == 'remainder
+    accounts = pdf.rename(index=str, columns={'Account': 'labels', 'Symbol': 'parents'})
+    merged = hierarchy.merge(accounts, how='outer')
+    return merged
 
 
 def accounts_report(cfg):

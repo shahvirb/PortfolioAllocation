@@ -48,4 +48,6 @@ class UIController:
         port = self.cfg.get_portfolio(name)
         portfolio_df = report.portfolio_df(self.cfg, port)
         compare_df = report.portfolio_target_comparison(self.cfg, port)
-        return self.view.portfolio_page(name, portfolio_df, compare_df)
+        hierarchy_df = report.portfolio_hierarchy(portfolio_df)
+
+        return self.view.portfolio_page(name, portfolio_df, compare_df, hierarchy_df)

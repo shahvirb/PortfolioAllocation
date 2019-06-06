@@ -80,8 +80,6 @@ class View:
             ]
         )
 
-
-
     def account_page(self, name, basic, securities, categories, hierarchy):
         col0 = [
             self.titled_df(name, basic),
@@ -95,13 +93,14 @@ class View:
         ]
         return graph_layout(col0, col1)
 
-    def portfolio_page(self, name, portfolio, compare):
+    def portfolio_page(self, name, portfolio, compare, hierarchy):
         col0 = [
             self.titled_df(name, portfolio),
             self.titled_df('Target Portfolio Comparison', compare),
         ]
         col1 = [
             dcc.Graph(figure=plot.category_weights(portfolio)),
+            dcc.Graph(figure=plot.category_weights_sunburst(hierarchy)),
         ]
         return graph_layout(col0, col1)
 

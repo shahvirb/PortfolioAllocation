@@ -53,8 +53,9 @@ class View:
                     [
                         dcc.Interval(id="interval", interval=500, n_intervals=0),
                         #self.header('PortfolioAllocation'),
-                        dbc.Container(id="page-content"),
-                    ]
+                        dbc.Container(id="page-content", fluid=True),
+                    ],
+                    fluid=True
                 ),
             ]
         )
@@ -109,8 +110,9 @@ def graph_layout(col0, col1):
     return dbc.Container(
         [
             dbc.Row([
-                dbc.Col(col0),
-                dbc.Col(col1, width=4)
+                dbc.Col(col0, width=6),
+                dbc.Col(col1, width=6)
             ])
-        ]
+        ],
+        fluid=True
     )

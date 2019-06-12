@@ -18,7 +18,7 @@ def start_server(config):
     uictrl = uicontrollers.UIController(config)
     PAGEMAP.update(uictrl.pagemap())
 
-    app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
+    app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP, dbc.themes.GRID])
     app.layout = uictrl.layout()
 
     @app.callback(Output("page-content", "children"), [Input("url", "pathname")])

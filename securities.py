@@ -1,10 +1,12 @@
 import pandas as pd
 import pyEX
 import functools
+import yahoo_finance_api2.share as yfshare
+import yahoo_finance_api2.exceptions as yfe
 
 MEMO_SIZE = 128
 
-class SecurityData():
+class IEXData():
     def __init__(self, apikey=None):
         if not apikey:
             try:
@@ -21,6 +23,24 @@ class SecurityData():
         except pyEX.PyEXception as e:
             if raises:
                 raise e
+            else:
+                print(e)
+        return 0
+
+
+class YahooFinanceData():
+    #TODO this should be a class static method but then it has a different interface as compared to IEXData
+    @functools.lru_cache(maxsize=MEMO_SIZE)
+    def price(self, symbol, raises=False):
+        try:
+            share = yfshare.Share(symbol)
+            hd = share.get_historical(yfshare.PERIOD_TYPE_DAY, 2, yfshare.FREQUENCY_TYPE_DAY, 1)
+            return hd['close'][-1]
+        except yfe.YahooFinanceError as e:
+            if raises:
+                raise e
+            else:
+                print(e)
         return 0
 
 
@@ -51,16 +71,11 @@ def symbol_categories_df(cfg):
             syms.add(s)
     cats = SecurityCategories(cfg)
     df = pd.DataFrame()
-    datasource = SecurityData()
+    datasource = YahooFinanceData()
     for s in syms:
         df.at[s, 'Symbol'] = s
         df.at[s, 'Category'] = cats.category(s, default='{} [Default]'.format(cats.default_category))
-        pr = None
-        try:
-            pr = datasource.price(s, raises=True)
-        except pyEX.PyEXception as e:
-            pass
-        df.at[s, 'Price'] = pr
+        df.at[s, 'Price'] = datasource.price(s, raises=False)
     df = df.set_index('Symbol').reset_index().sort_values('Symbol')
 
     return df
@@ -70,4 +85,6 @@ if __name__ == "__main__":
     import config
     cfg = config.load_yaml('sample.yaml')
     cats = symbol_categories_df(cfg)
-    cats['Price'] = cats.apply(lambda x: price(x.name), axis=1)
+    datasource = YahooFinanceData()
+    cats['Price'] = cats.apply(lambda x: datasource.price(x['Symbol']), axis=1)
+    print(cats)

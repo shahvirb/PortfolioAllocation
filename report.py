@@ -50,8 +50,8 @@ def flatten_multiindex_columns(df):
 def account_basic_df(cfg, account):
     categories = securities.SecurityCategories(cfg)
     df = pd.DataFrame()
-    datasource = securities.SecurityData()
-    for symbol,qty in account['holdings']['securities'].items():
+    datasource = securities.YahooFinanceData()
+    for symbol, qty in account['holdings']['securities'].items():
         df.at[symbol, 'Symbol'] = symbol
         df.at[symbol, 'Qty'] = qty
         price = datasource.price(symbol)

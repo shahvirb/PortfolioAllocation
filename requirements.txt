@@ -9,3 +9,4 @@ plotly
 pyYAML
 pyEX
 qgrid
+yahoo_finance_api2

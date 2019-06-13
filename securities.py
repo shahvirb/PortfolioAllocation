@@ -29,9 +29,9 @@ class IEXData():
 
 
 class YahooFinanceData():
-    #TODO this should be a class static method but then it has a different interface as compared to IEXData
+    @staticmethod
     @functools.lru_cache(maxsize=MEMO_SIZE)
-    def price(self, symbol, raises=False):
+    def price(symbol, raises=False):
         try:
             share = yfshare.Share(symbol)
             hd = share.get_historical(yfshare.PERIOD_TYPE_DAY, 2, yfshare.FREQUENCY_TYPE_DAY, 1)
@@ -82,9 +82,16 @@ def symbol_categories_df(cfg):
 
 
 if __name__ == "__main__":
-    import config
-    cfg = config.load_yaml('sample.yaml')
-    cats = symbol_categories_df(cfg)
-    datasource = YahooFinanceData()
-    cats['Price'] = cats.apply(lambda x: datasource.price(x['Symbol']), axis=1)
-    print(cats)
+    def config_read_example():
+        import config
+        cfg = config.load_yaml('sample.yaml')
+        cats = symbol_categories_df(cfg)
+        datasource = YahooFinanceData()
+        cats['Price'] = cats.apply(lambda x: datasource.price(x['Symbol']), axis=1)
+        print(cats)
+
+    def one_symbol_example():
+        datasource = YahooFinanceData()
+        print(datasource.price('VTI', raises=True))
+
+    one_symbol_example()

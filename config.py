@@ -22,6 +22,7 @@ class UserConfig:
     def load_yaml(self, path):
         self.path = path
         self.cfg = load_yaml(path)
+        self.yamlpath = path
 
     def __getitem__(self, item):
         return self.cfg[item]

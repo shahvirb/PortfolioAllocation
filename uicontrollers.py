@@ -15,7 +15,7 @@ class UIController:
         self.view = views.View()
 
     def navbar(self):
-        return self.view.navbar(self.cfg.account_names(), self.cfg.portfolio_names())
+        return self.view.navbar(self.cfg.yamlpath, self.cfg.account_names(), self.cfg.portfolio_names())
 
     def account_page(self, parsed):
         name = base_path(parsed)

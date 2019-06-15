@@ -13,10 +13,11 @@ class View:
     def __init__(self):
         self.dfrender = formatdf.DFFormatter(report.df_formatter())
 
-    def navbar(self, accounts, portfolios):
+    def navbar(self, yamlname, accounts, portfolios):
         return dbc.NavbarSimple(
             children=[
                 dbc.NavItem(dbc.NavLink('Home', href='/')),
+                dbc.NavItem(dbc.NavLink(f'Reload {yamlname}', href='/reloadyaml')),
                 dbc.DropdownMenu(
                     children=[dbc.DropdownMenuItem(name, href=TEMPL_ACCT_HREF.format(name)) for name in
                               accounts],

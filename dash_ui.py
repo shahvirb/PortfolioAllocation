@@ -13,7 +13,7 @@ PAGEMAP = {
 }
 
 @click.command()
-@click.option('--config')
+@click.option('--config', default=None)
 def start_server(config):
     uictrl = uicontrollers.UIController(config)
     PAGEMAP.update(uictrl.pagemap())

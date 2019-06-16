@@ -1,18 +1,21 @@
 import yaml
 
 
-def load_yaml(path):
-    cfg = read_yaml(path)
-    if 'include' in cfg and cfg['include']:
-        for inc in cfg['include']:
-            inc_yaml = read_yaml(inc)
-            cfg = {**cfg, **inc_yaml}
-    return cfg
-
-
 def read_yaml(path):
     with open(path, 'r') as doc:
         return yaml.load(doc)
+
+
+def includes(yaml):
+    return yaml['include'] if 'include' in yaml else ()
+
+
+def load_yaml(path):
+    cfg = read_yaml(path)
+    for inc in includes(cfg):
+        inc_yaml = read_yaml(inc)
+        cfg = {**cfg, **inc_yaml}
+    return cfg
 
 
 class UserConfig:

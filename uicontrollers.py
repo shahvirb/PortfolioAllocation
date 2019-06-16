@@ -3,16 +3,37 @@ import dash_html_components as html
 import report
 import views
 import securities
-
+import glob
+import logging
+from pathlib import Path
 
 def base_path(parsed):
     return parsed.path.split('/')[2]
 
 
+def find_root_configs(dir):
+    files = glob.glob(str(dir / '*.yaml'))
+    roots = set(files)
+    for f in files:
+        yaml = config.load_yaml(f)
+        roots -= set([str(Path(dir) / name) for name in config.includes(yaml)])
+    return tuple(roots)
+
+
 class UIController:
     def __init__(self, path):
-        self.cfg = config.UserConfig(path)
+        path = Path(path if path else Path.cwd())
+        if path.suffix == '.yaml':
+            yamlpath = path
+        else:
+            roots = find_root_configs(path)
+            yamlpath = roots[0]
+        self.load_user_config(yamlpath)
         self.view = views.View()
+
+    def load_user_config(self, path):
+        self.cfg = config.UserConfig(path)
+        logging.info(f'Loaded: {path}')
 
     def navbar(self):
         return self.view.navbar(self.cfg.yamlpath, self.cfg.account_names(), self.cfg.portfolio_names())

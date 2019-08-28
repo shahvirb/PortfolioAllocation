@@ -76,7 +76,7 @@ class View:
                     data = df.to_dict('records'),
                     columns = self.dfrender.format(df),
                     #filtering=True,
-                    sorting=True,
+                    #sorting=True,
                 )
             ]
         )

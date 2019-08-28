@@ -2,8 +2,6 @@ cufflinks
 click
 dash
 dash-bootstrap-components
-ipykernel
-jupyter
 pandas
 plotly
 pyYAML

@@ -100,8 +100,8 @@ class View:
             self.titled_df('Target Portfolio Comparison', compare),
         ]
         col1 = [
-            dcc.Graph(figure=plot.category_weights(portfolio)),
             dcc.Graph(figure=plot.category_weights_sunburst(hierarchy)),
+            dcc.Graph(figure=plot.category_weights(portfolio)),
         ]
         return graph_layout(col0, col1)
 

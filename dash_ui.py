@@ -36,9 +36,10 @@ def start_server(config):
             return str
         corrected = lreplace(pathname, '@', '?')
         parsed = urllib.parse.urlparse(corrected)
+        path = urllib.parse.unquote(parsed.path)
 
-        if parsed.path in PAGEMAP:
-            return PAGEMAP[parsed.path](parsed)
+        if path in PAGEMAP:
+            return PAGEMAP[path](parsed)
 
         # If the user tries to reach a different page, return a 404 message
         # TODO move this to views.py

@@ -6,9 +6,10 @@ import securities
 import glob
 import logging
 from pathlib import Path
+import urllib
 
 def base_path(parsed):
-    return parsed.path.split('/')[2]
+    return urllib.parse.unquote(parsed.path).split('/')[2]
 
 
 def find_root_configs(dir):

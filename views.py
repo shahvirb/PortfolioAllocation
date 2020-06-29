@@ -75,6 +75,7 @@ class View:
                 dash_table.DataTable(
                     data = df.to_dict('records'),
                     columns = self.dfrender.format(df),
+                    style_as_list_view=True,
                     #filtering=True,
                     #sorting=True,
                 )

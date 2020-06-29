@@ -2,6 +2,8 @@ security_categorization:
   default: Domestic Stocks
   categories:
     Domestic Stocks:
+    Domestic REIT:
+      - VNQ
     Domestic Bonds:
       - BND
     International Stocks:

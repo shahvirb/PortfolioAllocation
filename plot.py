@@ -14,6 +14,15 @@ def category_weights(df):
         title='Category Weights',
     )
 
+def account_weights(df):
+    return df.iplot(
+        asFigure=True,
+        kind='pie',
+        labels='Account',
+        values='Weight',
+        title='Account Weights',
+    )
+
 
 def category_weights_sunburst(df):
     #print([(df['labels'].iloc[i], df['parents'].iloc[i], df['Weight'].iloc[i]) for i in range(len(df['labels']))])

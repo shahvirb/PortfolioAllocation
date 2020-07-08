@@ -82,16 +82,17 @@ class View:
         )
 
     def titled_df(self, title, df):
+        table = dash_table.DataTable(
+            data=df.to_dict('records'),
+            columns=self.dfrender.format(df),
+            style_as_list_view=True,
+            # filtering=True,
+            # sorting=True,
+        )
         return dbc.Container(
             [
                 self.header(title),
-                dash_table.DataTable(
-                    data = df.to_dict('records'),
-                    columns = self.dfrender.format(df),
-                    style_as_list_view=True,
-                    #filtering=True,
-                    #sorting=True,
-                )
+                table
             ]
         )
 
@@ -100,21 +101,23 @@ class View:
             self.titled_df('Securities', securities),
             self.titled_df('Categories', categories),
         ]
-
         col1 = [
-            dcc.Graph(figure=plot.category_weights(categories)),
             dcc.Graph(figure=plot.category_weights_sunburst(hierarchy)),
+            dcc.Graph(figure=plot.category_weights(categories)),
         ]
+
         return graph_layout(col0, col1)
 
-    def portfolio_page(self, name, portfolio, compare, hierarchy):
+    def portfolio_page(self, name, portfolio, categories, compare, hierarchy, accounts):
         col0 = [
+            self.titled_df(name, accounts),
             self.titled_df(name, portfolio),
             self.titled_df('Target Portfolio Comparison', compare),
         ]
         col1 = [
+            dcc.Graph(figure=plot.account_weights(accounts)),
             dcc.Graph(figure=plot.category_weights_sunburst(hierarchy)),
-            dcc.Graph(figure=plot.category_weights(portfolio)),
+            dcc.Graph(figure=plot.category_weights(categories)),
         ]
         return graph_layout(col0, col1)
 

@@ -76,13 +76,15 @@ def account_securities_df(cfg, account):
     return df
 
 
-def account_categories_df(df):
-    cats = df.groupby('Category')['Value'].sum().to_frame()
+def group_df_by(df, label):
+    cats = df.groupby(label)['Value'].sum().to_frame()
     cats['Weight'] = cats['Value'] / cats['Value'].sum()
     cats = cats.sort_values(by=['Weight'], ascending=False)
-    # cats.at['Total', 'Value'] = cats['Value'].sum()
-    # cats.at['Total', 'Weight'] = cats['Weight'].sum()
     return cats.reset_index()
+
+
+def account_categories_df(df):
+    return group_df_by(df, 'Category')
 
 
 def account_hierarchy(securities_df):
@@ -123,7 +125,9 @@ def portfolio_df(cfg, portfolio):
         portfolios.append(acct_df)
     port_df = pd.concat(portfolios)
     port_df['Weight'] = port_df['Value'] / port_df['Value'].sum()
-    return port_df[['Account', 'Symbol', 'Category', 'Price', 'Qty', 'Value', 'Weight']]
+    port_df = port_df[['Account', 'Symbol', 'Category', 'Price', 'Qty', 'Value', 'Weight']]
+    port_df.reset_index(drop=True, inplace=True)
+    return port_df
 
 
 def portfolio_comparison(target, pdf):

@@ -100,7 +100,7 @@ def symbol_categories_df(cfg):
         df.at[s, 'Category'] = cats.category(s, default='{} [Default]'.format(cats.default_category))
         price, time = datasource.price_with_time(s)
         df.at[s, 'Price'] = price
-        df.at[s, 'Update Time'] = time
+        df.at[s, 'Updated'] = time
     df = df.set_index('Symbol').reset_index().sort_values('Symbol')
 
     return df

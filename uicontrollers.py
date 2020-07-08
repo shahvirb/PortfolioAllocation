@@ -21,6 +21,12 @@ def find_root_configs(dir):
     return tuple(roots)
 
 
+def add_total_row(df, name_column):
+    df.at['Total', 'Value'] = df['Value'].sum()
+    df.at['Total', 'Weight'] = df['Weight'].sum()
+    df.at['Total', name_column] = 'Total'
+    return df
+
 class UIController:
     def __init__(self, path):
         path = Path(path if path else Path.cwd())
@@ -45,6 +51,7 @@ class UIController:
         securities_df = report.account_securities_df(self.cfg, account)
         categories_df = report.account_categories_df(securities_df)
         hierarchy_df = report.account_hierarchy(securities_df)
+        securities_df = add_total_row(securities_df, 'Symbol')
         return self.view.account_page(name, securities_df, categories_df, hierarchy_df)
 
     def pagemap(self):
@@ -68,7 +75,9 @@ class UIController:
         name = base_path(parsed)
         port = self.cfg.get_portfolio(name)
         portfolio_df = report.portfolio_df(self.cfg, port)
+        accounts_df = report.group_df_by(portfolio_df, 'Account')
+        categories_df = report.account_categories_df(portfolio_df)
         compare_df = report.portfolio_target_comparison(self.cfg, port)
         hierarchy_df = report.portfolio_hierarchy(portfolio_df)
-
-        return self.view.portfolio_page(name, portfolio_df, compare_df, hierarchy_df)
+        portfolio_df = add_total_row(portfolio_df, 'Account')
+        return self.view.portfolio_page(name, portfolio_df, categories_df, compare_df, hierarchy_df, accounts_df)

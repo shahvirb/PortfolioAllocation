@@ -42,11 +42,10 @@ class UIController:
     def account_page(self, parsed):
         name = base_path(parsed)
         account = self.cfg.get_account(name)
-        basic_df = report.account_basic_df(self.cfg, account)
         securities_df = report.account_securities_df(self.cfg, account)
         categories_df = report.account_categories_df(securities_df)
         hierarchy_df = report.account_hierarchy(securities_df)
-        return self.view.account_page(name, basic_df, securities_df, categories_df, hierarchy_df)
+        return self.view.account_page(name, securities_df, categories_df, hierarchy_df)
 
     def pagemap(self):
         pagemap = {

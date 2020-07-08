@@ -95,9 +95,8 @@ class View:
             ]
         )
 
-    def account_page(self, name, basic, securities, categories, hierarchy):
+    def account_page(self, name, securities, categories, hierarchy):
         col0 = [
-            self.titled_df(name, basic),
             self.titled_df('Securities', securities),
             self.titled_df('Categories', categories),
         ]

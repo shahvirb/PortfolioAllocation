@@ -1,3 +1,4 @@
+import datetime
 import pandas as pd
 import pyEX
 import functools
@@ -30,18 +31,40 @@ class IEXData():
 
 class YahooFinanceData():
     @staticmethod
+    def make_datetime(ts):
+        return datetime.datetime.fromtimestamp(ts / 1000)
+
+    @staticmethod
     @functools.lru_cache(maxsize=MEMO_SIZE)
-    def price(symbol, raises=False):
+    def find_last(symbol):
+        def find_last_valid(hd):
+            for i, price in reversed(list(enumerate(hd['close']))):
+                if price:
+                    return i
+            return None
+
         try:
             share = yfshare.Share(symbol)
-            hd = share.get_historical(yfshare.PERIOD_TYPE_DAY, 2, yfshare.FREQUENCY_TYPE_DAY, 1)
-            return hd['close'][-1]
+            if share:
+                hd = share.get_historical(yfshare.PERIOD_TYPE_DAY, 5, yfshare.FREQUENCY_TYPE_DAY, 1)
+                if hd:
+                    return hd, find_last_valid(hd)
         except yfe.YahooFinanceError as e:
-            if raises:
-                raise e
-            else:
-                print(e)
-        return 0
+            raise e
+        return None
+
+
+    @staticmethod
+    def price(symbol, raises=False):
+        data, last = YahooFinanceData.find_last(symbol)
+        return data['close'][last]
+
+    @staticmethod
+    def price_with_time(symbol):
+        data, last = YahooFinanceData.find_last(symbol)
+        time_str = str(YahooFinanceData.make_datetime(data['timestamp'][last]))
+        return data['close'][last], time_str
+
 
 
 class SecurityCategories():
@@ -75,7 +98,9 @@ def symbol_categories_df(cfg):
     for s in syms:
         df.at[s, 'Symbol'] = s
         df.at[s, 'Category'] = cats.category(s, default='{} [Default]'.format(cats.default_category))
-        df.at[s, 'Price'] = datasource.price(s, raises=False)
+        price, time = datasource.price_with_time(s)
+        df.at[s, 'Price'] = price
+        df.at[s, 'Update Time'] = time
     df = df.set_index('Symbol').reset_index().sort_values('Symbol')
 
     return df
@@ -92,6 +117,6 @@ if __name__ == "__main__":
 
     def one_symbol_example():
         datasource = YahooFinanceData()
-        print(datasource.price('VTI', raises=True))
+        print(datasource.price_with_time('VTI'))
 
     one_symbol_example()

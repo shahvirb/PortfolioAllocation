@@ -60,10 +60,24 @@ class View:
             ]
         )
 
+    def securities_table(self, securities):
+        titled_df = self.titled_df('Securities', securities)
+        table = titled_df.children[1]
+        table.style_data_conditional = [
+            {
+                'if': {
+                    'column_id': 'Price',
+                    'filter_query': '{Price} <= 0',
+                },
+                'backgroundColor': 'tomato',
+            }
+        ]
+        return titled_df
+
     def home_page(self, securities):
         return dbc.Container(
             [
-                self.titled_df('Securities', securities)
+                self.securities_table(securities)
             ]
         )
 
@@ -71,7 +85,6 @@ class View:
         return dbc.Container(
             [
                 self.header(title),
-                #dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, responsive=True),
                 dash_table.DataTable(
                     data = df.to_dict('records'),
                     columns = self.dfrender.format(df),

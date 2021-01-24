@@ -3,7 +3,7 @@ import yaml
 
 def read_yaml(path):
     with open(path, 'r') as doc:
-        return yaml.load(doc)
+        return yaml.load(doc, Loader=yaml.FullLoader)
 
 
 def includes(yaml):

@@ -2,6 +2,7 @@ cufflinks
 click
 dash
 dash-bootstrap-components
+ofxtools
 pandas
 plotly
 pyYAML

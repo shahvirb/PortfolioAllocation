@@ -136,7 +136,7 @@ def portfolio_comparison(target, pdf):
     compare = dedupe.pivot(index='Category', columns='Symbol', values=['Value', 'Weight'])
     compare['Value', 'Total'] = compare['Value'].sum(axis=1)
     compare['Weight', 'Total'] = compare['Weight'].sum(axis=1)
-    compare['Weight', 'Error'] = compare['Weight','Total'] - [target['holdings']['category_weighted'][name] for name in compare.index]
+    compare['Weight', 'Error'] = compare['Weight','Total'] - [target['holdings']['category_weighted'].get(name, 0) for name in compare.index]
     compare['Value', 'Error'] = compare['Weight', 'Error'] * compare['Value', 'Total'].sum()
     assert compare['Value', 'Error'].sum() <= 0.01
     compare = flatten_multiindex_columns(compare).reset_index()

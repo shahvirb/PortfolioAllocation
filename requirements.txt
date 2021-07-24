@@ -8,3 +8,4 @@ plotly
 pyYAML
 qgrid
 yahoo_finance_api2
+yfinanceng

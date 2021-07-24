@@ -4,6 +4,7 @@ import pandas as pd
 import functools
 import yahoo_finance_api2.share as yfshare
 import yahoo_finance_api2.exceptions as yfe
+import yfinanceng #TODO can this wholly replace yahoo_finance_api2?
 
 MEMO_SIZE = 128
 
@@ -55,6 +56,12 @@ class YahooFinanceData():
         return None
 
     @staticmethod
+    @functools.lru_cache(maxsize=MEMO_SIZE)
+    def name(symbol):
+        return yfinanceng.Ticker(symbol).info.get('longName', '')
+
+
+    @staticmethod
     def price(symbol, raises=False):
         data, last = YahooFinanceData.find_last(symbol)
         return data['close'][last]
@@ -96,6 +103,7 @@ def symbol_categories_df(cfg):
     datasource = YahooFinanceData()
     for s in syms:
         df.at[s, 'Symbol'] = s
+        df.at[s, 'Name'] = datasource.name(s)
         df.at[s, 'Category'] = cats.category(s, default='{} [Default]'.format(cats.default_category))
         price, time = datasource.price_with_time(s)
         df.at[s, 'Price'] = price
@@ -115,9 +123,9 @@ if __name__ == "__main__":
         print(cats)
 
 
-    def one_symbol_example():
+    def one_symbol_example(symbol):
         datasource = YahooFinanceData()
-        print(datasource.price_with_time('VTI'))
+        print(datasource.name(symbol), datasource.price_with_time(symbol))
 
 
-    one_symbol_example()
+    one_symbol_example('VTI')

@@ -26,9 +26,11 @@ def load_ofx(cfg):
             import ofxparser
             ofx = ofxparser.readfile(acct['ofx'])
             statement = ofxparser.Statement(ofx, acct['ofx_accountid'])
-            cfg['accounts'][name]['holdings'] = {'securities': statement.positions()}
-            cfg['accounts'][name]['cash'] = float(
-                decimal.Decimal(cfg['accounts'][name].get('cash', 0)) + statement.cash_balance())
+            cfg['accounts'][name]['holdings'] = {
+                'securities': statement.positions(),
+                'cash': float(decimal.Decimal(
+                    cfg['accounts'][name].get('cash', 0)) + statement.cash_balance())
+            }
             # cast the resulting cash value to a float because the user yaml file cash value is a float
     return cfg
 

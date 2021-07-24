@@ -28,7 +28,7 @@ class Statement:
             raise KeyError('account_id not found in statements')
 
     def positions(self):
-        return {self.tickers_map[pos.invpos.secid.uniqueid]: str(pos.invpos.units) for pos in self.statement.positions}
+        return {self.tickers_map[pos.invpos.secid.uniqueid]: float(pos.invpos.units) for pos in self.statement.positions}
 
     def cash_balance(self):
         return self.statement.balances.availcash

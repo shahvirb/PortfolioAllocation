@@ -1,32 +1,33 @@
 import datetime
 import pandas as pd
-import pyEX
+# import pyEX
 import functools
 import yahoo_finance_api2.share as yfshare
 import yahoo_finance_api2.exceptions as yfe
 
 MEMO_SIZE = 128
 
-class IEXData():
-    def __init__(self, apikey=None):
-        if not apikey:
-            try:
-                import iexapikey
-                apikey = iexapikey.IEX_KEY
-            except ModuleNotFoundError as e:
-                pass
-        self.client = pyEX.Client(apikey)
 
-    @functools.lru_cache(maxsize=MEMO_SIZE)
-    def price(self, symbol, raises=False):
-        try:
-            return self.client.price(symbol)
-        except pyEX.PyEXception as e:
-            if raises:
-                raise e
-            else:
-                print(e)
-        return 0
+# class IEXData():
+#     def __init__(self, apikey=None):
+#         if not apikey:
+#             try:
+#                 import iexapikey
+#                 apikey = iexapikey.IEX_KEY
+#             except ModuleNotFoundError as e:
+#                 pass
+#         self.client = pyEX.Client(apikey)
+#
+#     @functools.lru_cache(maxsize=MEMO_SIZE)
+#     def price(self, symbol, raises=False):
+#         try:
+#             return self.client.price(symbol)
+#         except pyEX.PyEXception as e:
+#             if raises:
+#                 raise e
+#             else:
+#                 print(e)
+#         return 0
 
 
 class YahooFinanceData():
@@ -53,7 +54,6 @@ class YahooFinanceData():
             raise e
         return None
 
-
     @staticmethod
     def price(symbol, raises=False):
         data, last = YahooFinanceData.find_last(symbol)
@@ -64,7 +64,6 @@ class YahooFinanceData():
         data, last = YahooFinanceData.find_last(symbol)
         time_str = str(YahooFinanceData.make_datetime(data['timestamp'][last]))
         return data['close'][last], time_str
-
 
 
 class SecurityCategories():
@@ -115,8 +114,10 @@ if __name__ == "__main__":
         cats['Price'] = cats.apply(lambda x: datasource.price(x['Symbol']), axis=1)
         print(cats)
 
+
     def one_symbol_example():
         datasource = YahooFinanceData()
         print(datasource.price_with_time('VTI'))
+
 
     one_symbol_example()

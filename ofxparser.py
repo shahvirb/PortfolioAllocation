@@ -30,8 +30,8 @@ class Statement:
     def positions(self):
         return {self.tickers_map[pos.invpos.secid.uniqueid]: float(pos.invpos.units) for pos in self.statement.positions}
 
-    def cash_balance(self):
-        return self.statement.balances.availcash
+    # def cash_balance(self):
+    #     return self.statement.balances.availcash
 
 if __name__ == "__main__":
     ofx = readfile('OfxDownload.qfx')

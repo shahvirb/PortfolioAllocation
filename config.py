@@ -26,12 +26,14 @@ def load_ofx(cfg):
             import ofxparser
             ofx = ofxparser.readfile(acct['ofx'])
             statement = ofxparser.Statement(ofx, acct['ofx_accountid'])
-            cfg['accounts'][name]['holdings'] = {
-                'securities': statement.positions(),
-                'cash': float(decimal.Decimal(
-                    cfg['accounts'][name].get('cash', 0)) + statement.cash_balance())
-            }
-            # cast the resulting cash value to a float because the user yaml file cash value is a float
+            securities = {'securities': statement.positions()}
+            if 'holdings' in cfg['accounts'][name]:
+                assert 'securities' not in cfg['accounts'][name][
+                    'holdings']  # haven't implemented merging securities from user config and from ofx file
+                cfg['accounts'][name]['holdings'].update(securities)
+            else:
+                cfg['accounts'][name]['holdings'] = securities
+            # Note: no need to read the cash_balance value from the statement because money market funds show up in statement.positions and should be categorized as cash
     return cfg
 
 

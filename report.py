@@ -58,13 +58,13 @@ def account_basic_df(cfg, account):
         df.at[symbol, 'Price'] = price
         df.at[symbol, 'Value'] = price * qty
         df.at[symbol, 'Category'] = categories(symbol)
-    cash = pd.DataFrame({
-        'Symbol':['Cash'],
-        'Value': [account['holdings']['cash']],
-        'Category': 'Cash'
-    })
-    df = df.append(cash, ignore_index=True)
-    #df = df.set_index('Symbol', drop=False)
+    if 'cash'in account['holdings']:
+        cash = pd.DataFrame({
+            'Symbol':['Cash'],
+            'Value': [account['holdings']['cash']],
+            'Category': 'Cash'
+        })
+        df = df.append(cash, ignore_index=True)
     df = df.reset_index()
     return df[['Symbol', 'Category', 'Price', 'Qty', 'Value']]
 
@@ -93,8 +93,12 @@ def account_hierarchy(securities_df):
     categories['parents'] = root_label
     categories['Weight'] = 0 # because of branchvalues == remainder
     symbols = securities_df.groupby(['Symbol', 'Category']).sum()
-    symbols = symbols.drop('Cash') # This causes a circular reference because the symbol name == category name
-    #TODO this causes cash weight to be zero
+    try:
+        symbols = symbols.drop('Cash') # This causes a circular reference because the symbol name == category name
+    except KeyError:
+        # If we're here then 'Cash' doesn't exist and we can no-op
+        pass
+
     symbols = symbols.reset_index().rename(index=str, columns={'Symbol': 'labels', 'Category': 'parents'})
     merged = categories.merge(symbols, how='outer')
     #merged.set_index('labels')

@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 from dash_table import FormatTemplate as FormatTemplate
 from dash_table.Format import Format
@@ -5,6 +6,7 @@ from dash_table.Format import Format
 import securities
 import qgrid
 import config
+
 
 # def merge_dicts(list):
 #     d = {}
@@ -30,7 +32,7 @@ def init_display():
 
 def print_df(df):
     if run_from_ipython():
-        #display(df)
+        # display(df)
         flat = flatten_multiindex_columns(df)
         qgrid_widget = qgrid.show_grid(flat, show_toolbar=True)
         display(qgrid_widget)
@@ -58,9 +60,9 @@ def account_basic_df(cfg, account):
         df.at[symbol, 'Price'] = price
         df.at[symbol, 'Value'] = price * qty
         df.at[symbol, 'Category'] = categories(symbol)
-    if 'cash'in account['holdings']:
+    if 'cash' in account['holdings']:
         cash = pd.DataFrame({
-            'Symbol':['Cash'],
+            'Symbol': ['Cash'],
             'Value': [account['holdings']['cash']],
             'Category': 'Cash'
         })
@@ -88,20 +90,21 @@ def account_categories_df(df):
 
 
 def account_hierarchy(securities_df):
-    categories = securities_df.groupby(['Category']).sum().reset_index().rename(index=str, columns={'Category': 'labels'})
+    categories = securities_df.groupby(['Category']).sum().reset_index().rename(index=str,
+                                                                                columns={'Category': 'labels'})
     root_label = 'Weights'
     categories['parents'] = root_label
-    categories['Weight'] = 0 # because of branchvalues == remainder
+    categories['Weight'] = 0  # because of branchvalues == remainder
     symbols = securities_df.groupby(['Symbol', 'Category']).sum()
     try:
-        symbols = symbols.drop('Cash') # This causes a circular reference because the symbol name == category name
+        symbols = symbols.drop('Cash')  # This causes a circular reference because the symbol name == category name
     except KeyError:
         # If we're here then 'Cash' doesn't exist and we can no-op
         pass
 
     symbols = symbols.reset_index().rename(index=str, columns={'Symbol': 'labels', 'Category': 'parents'})
     merged = categories.merge(symbols, how='outer')
-    #merged.set_index('labels')
+    # merged.set_index('labels')
     root = pd.DataFrame({
         'labels': root_label,
         'parents': '',
@@ -135,16 +138,27 @@ def portfolio_df(cfg, portfolio):
 
 
 def portfolio_comparison(target, pdf):
+    assert 1.0 - sum(
+        target['holdings']['category_weighted'].values()) < 1e-4  # Ensure that target portfolio weights sum to 1
     dedupe = pdf.groupby(['Symbol', 'Category']).sum().reset_index()
-    #report.print_df(dedupe.reset_index())
+    # report.print_df(dedupe.reset_index())
     compare = dedupe.pivot(index='Category', columns='Symbol', values=['Value', 'Weight'])
+
+    # Create new rows for categories which exist in target but not in pdf
+    missing_categories = set(target['holdings']['category_weighted'].keys()) - set(compare.index.values)
+    for c in missing_categories:
+        compare.loc[c, :] = np.nan
+
     compare['Value', 'Total'] = compare['Value'].sum(axis=1)
     compare['Weight', 'Total'] = compare['Weight'].sum(axis=1)
-    compare['Weight', 'Error'] = compare['Weight','Total'] - [target['holdings']['category_weighted'].get(name, 0) for name in compare.index]
+    compare['Weight', 'Error'] = compare['Weight', 'Total'] - [target['holdings']['category_weighted'].get(name, 0) for
+                                                               name in compare.index]
     compare['Value', 'Error'] = compare['Weight', 'Error'] * compare['Value', 'Total'].sum()
     assert compare['Value', 'Error'].sum() <= 0.01
+
     compare = flatten_multiindex_columns(compare).reset_index()
-    return compare[['Category', 'Value Total', 'Value Error', 'Weight Total', 'Weight Error']]
+    compare = compare[['Category', 'Value Total', 'Value Error', 'Weight Total', 'Weight Error']]
+    return compare
 
 
 def portfolio_target_comparison(cfg, port):
@@ -153,7 +167,7 @@ def portfolio_target_comparison(cfg, port):
 
 def portfolio_hierarchy(pdf):
     hierarchy = account_hierarchy(pdf)
-    hierarchy['Weight'] = 0 # because branch_values == 'remainder
+    hierarchy['Weight'] = 0  # because branch_values == 'remainder
     accounts = pdf.rename(index=str, columns={'Account': 'labels', 'Symbol': 'parents'})
     merged = hierarchy.merge(accounts, how='outer')
     return merged
@@ -190,10 +204,10 @@ def generate_report(input):
 def df_formatter():
     return {
         'Price': {'type': 'numeric', 'format': FormatTemplate.money(2)},
-        #Format(precision=0, scheme=Scheme.fixed, symbol=Symbol.yes, symbol_prefix='$'),
+        # Format(precision=0, scheme=Scheme.fixed, symbol=Symbol.yes, symbol_prefix='$'),
         'Value': {'type': 'numeric', 'format': FormatTemplate.money(0)},
         'Weight': {'type': 'numeric', 'format': FormatTemplate.percentage(1)},
-        #'Qty': {'type': 'numeric', 'format': Format(precision=.3)},
+        # 'Qty': {'type': 'numeric', 'format': Format(precision=.3)},
     }
 
 

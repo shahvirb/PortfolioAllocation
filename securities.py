@@ -96,8 +96,9 @@ class SecurityCategories():
 def symbol_categories_df(cfg):
     syms = set()
     for act in cfg['accounts']:
-        for s in cfg['accounts'][act]['holdings']['securities'].keys():
-            syms.add(s)
+        if 'securities' in cfg['accounts'][act]['holdings']:
+            for s in cfg['accounts'][act]['holdings']['securities'].keys():
+                syms.add(s)
     cats = SecurityCategories(cfg)
     df = pd.DataFrame()
     datasource = YahooFinanceData()

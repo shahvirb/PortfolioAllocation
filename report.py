@@ -50,31 +50,26 @@ def flatten_multiindex_columns(df):
 
 
 def account_basic_df(cfg, account):
+    def write_row(df, symbol, qty, price, value, category):
+        df.at[symbol, 'Symbol'] = symbol
+        df.at[symbol, 'Qty'] = qty
+        df.at[symbol, 'Price'] = price
+        df.at[symbol, 'Value'] = value
+        df.at[symbol, 'Category'] = category
+
     categories = securities.SecurityCategories(cfg)
     df = pd.DataFrame()
     datasource = securities.YahooFinanceData()
     holdings = account['holdings']
-    for symbol, qty in holdings['securities'].items():
-        df.at[symbol, 'Symbol'] = symbol
-        df.at[symbol, 'Qty'] = qty
-        price = datasource.price(symbol)
-        df.at[symbol, 'Price'] = price
-        df.at[symbol, 'Value'] = price * qty
-        df.at[symbol, 'Category'] = categories(symbol)
-
-    def append_to_df(df, symbol_name, value, category):
-        row = pd.DataFrame({
-            'Symbol': [symbol_name],
-            'Value': [value],
-            'Category': category
-        })
-        return df.append(row, ignore_index=True)
-
+    if 'securities' in holdings:
+        for symbol, qty in holdings['securities'].items():
+            price = datasource.price(symbol)
+            write_row(df, symbol, qty, price, price*qty, categories(symbol))
     if 'cash' in holdings:
-        df = append_to_df(df, 'Cash', holdings['cash'], 'Cash')
+        write_row(df, 'Cash', np.nan, np.nan, holdings['cash'], 'Cash')
     if 'fixed value' in holdings:
         for name, item in holdings['fixed value'].items():
-            df = append_to_df(df, name, item['value'], item['category'])
+            write_row(df, name, np.nan, np.nan, item['value'], item['category'])
     df = df.reset_index()
     return df[['Symbol', 'Category', 'Price', 'Qty', 'Value']]
 

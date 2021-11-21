@@ -9,6 +9,10 @@ accounts:
         BND: 1.0
         VXUS: 0.4
       cash: 5000
+      fixed value:
+        Corporate Bonds:
+          category: Domestic Bonds
+          value: 1000
   B_NonTaxed:
     holdings:
       securities:

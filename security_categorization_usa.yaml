@@ -1,10 +1,22 @@
 security_categorization:
   default: Domestic Stocks
   categories:
+    Cash:
+      - VMFXX
+      - VMRXX
     Domestic Stocks:
     Domestic REIT:
+      - VGSNX
       - VNQ
     Domestic Bonds:
       - BND
+      - VBTIX
+      - VTEB
+    International Bonds:
+      - BNDX
     International Stocks:
+      - LZEMX
+      - RERGX
+      - SPDW
+      - VTIAX
       - VXUS

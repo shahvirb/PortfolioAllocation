@@ -97,7 +97,7 @@ class CachingDataSource():
             'last_time': timestamp,
             'record_created': time.time(),
         }
-        print('Writing symbol to db: ', data)
+        # print('Writing symbol to db: ', data)
         self.db.insert(data)
 
     def get_symbol(self, symbol):
@@ -111,6 +111,7 @@ class CachingDataSource():
         result = self.get_symbol(symbol)
         if not result:
             self.write_symbol(symbol)
+            result = self.get_symbol(symbol)
         return result[property]
 
     def name(self, symbol):

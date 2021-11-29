@@ -5,6 +5,7 @@ dash-bootstrap-components
 ofxtools
 pandas
 plotly
+pytest
 pyYAML
 qgrid
 tinydb

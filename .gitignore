@@ -118,3 +118,4 @@ dmypy.json
 
 iexapikey.py
 .quandlapikey
+db_securities.json

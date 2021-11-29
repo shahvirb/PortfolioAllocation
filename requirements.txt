@@ -7,5 +7,6 @@ pandas
 plotly
 pyYAML
 qgrid
+tinydb
 yahoo_finance_api2
 yfinanceng

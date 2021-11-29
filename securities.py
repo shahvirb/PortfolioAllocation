@@ -2,9 +2,11 @@ import datetime
 import pandas as pd
 # import pyEX
 import functools
+import time
+import tinydb
 import yahoo_finance_api2.share as yfshare
 import yahoo_finance_api2.exceptions as yfe
-import yfinanceng #TODO can this wholly replace yahoo_finance_api2?
+import yfinanceng  # TODO can this wholly replace yahoo_finance_api2?
 
 MEMO_SIZE = 128
 
@@ -29,6 +31,13 @@ MEMO_SIZE = 128
 #             else:
 #                 print(e)
 #         return 0
+
+
+def elapsed_hours(seconds1, seconds2=time.time()):
+    '''
+    :return: delta value in hours between seconds2 - seconds1
+    '''
+    return (seconds2 - seconds1) / 3600
 
 
 class YahooFinanceData():
@@ -60,7 +69,6 @@ class YahooFinanceData():
     def name(symbol):
         return yfinanceng.Ticker(symbol).info.get('longName', '')
 
-
     @staticmethod
     def price(symbol, raises=False):
         data, last = YahooFinanceData.find_last(symbol)
@@ -71,6 +79,48 @@ class YahooFinanceData():
         data, last = YahooFinanceData.find_last(symbol)
         time_str = str(YahooFinanceData.make_datetime(data['timestamp'][last]))
         return data['close'][last], time_str
+
+
+class CachingDataSource():
+    def __init__(self, db_path, expiry_hours=24):
+        self.db = tinydb.TinyDB(db_path)
+        self.datasource = YahooFinanceData()
+        self.expiry_hours = expiry_hours
+
+    def write_symbol(self, symbol):
+        self.db.remove(tinydb.Query().symbol == symbol)
+        last_price, timestamp = self.datasource.price_with_time(symbol)
+        data = {
+            'symbol': symbol,
+            'name': self.datasource.name(symbol),
+            'last_price': last_price,
+            'last_time': timestamp,
+            'record_created': time.time(),
+        }
+        print('Writing symbol to db: ', data)
+        self.db.insert(data)
+
+    def get_symbol(self, symbol):
+        results = self.db.search(tinydb.Query().symbol == symbol)
+        if results and elapsed_hours(results[0]['record_created']) <= self.expiry_hours:
+            return results[0]
+        else:
+            return None
+
+    def read_symbol_data(self, symbol, property):
+        result = self.get_symbol(symbol)
+        if not result:
+            self.write_symbol(symbol)
+        return result[property]
+
+    def name(self, symbol):
+        return self.read_symbol_data(symbol, 'name')
+
+    def price(self, symbol, raises=False):
+        return self.read_symbol_data(symbol, 'last_price')
+
+    def price_with_time(self, symbol):
+        return self.read_symbol_data(symbol, 'last_price'), self.read_symbol_data(symbol, 'last_time')
 
 
 class SecurityCategories():
@@ -94,6 +144,9 @@ class SecurityCategories():
 
 
 def symbol_categories_df(cfg):
+    from pyinstrument import Profiler
+    profiler = Profiler()
+    profiler.start()
     syms = set()
     for act in cfg['accounts']:
         if 'securities' in cfg['accounts'][act]['holdings']:
@@ -109,8 +162,10 @@ def symbol_categories_df(cfg):
         price, time = datasource.price_with_time(s)
         df.at[s, 'Price'] = price
         df.at[s, 'Updated'] = time
-    df = df.set_index('Symbol').reset_index().sort_values('Symbol')
 
+    df = df.set_index('Symbol').reset_index().sort_values('Symbol')
+    profiler.stop()
+    profiler.print()
     return df
 
 
@@ -129,4 +184,12 @@ if __name__ == "__main__":
         print(datasource.name(symbol), datasource.price_with_time(symbol))
 
 
-    one_symbol_example('VTI')
+    # one_symbol_example('VTI')
+
+    def database_example(symbol):
+        datasource = CachingDataSource('db_securities.json')
+        print(datasource.name(symbol))
+        print(datasource.name(symbol))
+
+
+    database_example('VTI')

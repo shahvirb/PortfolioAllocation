@@ -1,7 +1,11 @@
 import pytest
 import securities
+import os
 
 REAL_SECURITY = 'VTI'
+DB_PATH = 'db_test.json'
+
+
 class TestYahooFinanceData:
     def test_real_security_name(self):
         name = securities.YahooFinanceData.name(REAL_SECURITY)
@@ -14,18 +18,24 @@ class TestYahooFinanceData:
         assert type(price) is float
         assert price > 0
 
-DB_PATH = 'db_test.json'
-class TestCachingDataSource:
-    def test_read_write(self):
-        # Remove the database file if it exists
-        try:
-            import os
-            os.remove(DB_PATH)
-        except FileNotFoundError:
-            pass
 
-        # Create the empty database which should have nothing in it
-        cds = securities.CachingDataSource(DB_PATH, expiry_hours = 12)
+@pytest.fixture
+def cds(request):
+    def safe_delete():
+        if os.path.exists(DB_PATH):
+            os.remove(DB_PATH)
+
+    # Let's just assume the environment might be dirty so remove the db file
+    safe_delete()
+
+    with securities.CachingDataSource(DB_PATH, expiry_hours=12) as db:
+        yield db
+    safe_delete()
+
+
+class TestCachingDataSource:
+    def test_read_write(self, cds):
+        # empty database should have nothing in it
         assert len(cds.db) is 0
 
         # Fetch data from a real security which will serve as the source of truth
@@ -39,7 +49,5 @@ class TestCachingDataSource:
         assert cds.name(REAL_SECURITY) == true_name
         assert cds.price(REAL_SECURITY) == true_price
 
-        # Clean up the db file
-        del cds # delete the cds object so that tinydb releases the file handle
-        os.remove(DB_PATH)
-
+        # Now the database should only have one symbol
+        assert len(cds.db) is 1

@@ -87,6 +87,12 @@ class CachingDataSource():
         self.datasource = YahooFinanceData()
         self.expiry_hours = expiry_hours
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.db.close()
+
     def write_symbol(self, symbol):
         self.db.remove(tinydb.Query().symbol == symbol)
         last_price, timestamp = self.datasource.price_with_time(symbol)
@@ -97,7 +103,6 @@ class CachingDataSource():
             'last_time': timestamp,
             'record_created': time.time(),
         }
-        # print('Writing symbol to db: ', data)
         self.db.insert(data)
 
     def get_symbol(self, symbol):

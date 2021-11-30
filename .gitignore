@@ -119,3 +119,4 @@ dmypy.json
 iexapikey.py
 .quandlapikey
 db_securities.json
+db_test.json

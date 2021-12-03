@@ -59,18 +59,18 @@ def account_basic_df(cfg, account):
 
     categories = securities.SecurityCategories(cfg)
     df = pd.DataFrame()
-    datasource = securities.YahooFinanceData()
-    holdings = account['holdings']
-    if 'securities' in holdings:
-        for symbol, qty in holdings['securities'].items():
-            price = datasource.price(symbol)
-            write_row(df, symbol, qty, price, price*qty, categories(symbol))
-    if 'cash' in holdings:
-        write_row(df, 'Cash', np.nan, np.nan, holdings['cash'], 'Cash')
-    if 'fixed value' in holdings:
-        for name, item in holdings['fixed value'].items():
-            write_row(df, name, np.nan, np.nan, item['value'], item['category'])
-    df = df.reset_index()
+    with securities.CachingDataSource() as datasource:
+        holdings = account['holdings']
+        if 'securities' in holdings:
+            for symbol, qty in holdings['securities'].items():
+                price = datasource.price(symbol)
+                write_row(df, symbol, qty, price, price*qty, categories(symbol))
+        if 'cash' in holdings:
+            write_row(df, 'Cash', np.nan, np.nan, holdings['cash'], 'Cash')
+        if 'fixed value' in holdings:
+            for name, item in holdings['fixed value'].items():
+                write_row(df, name, np.nan, np.nan, item['value'], item['category'])
+        df = df.reset_index()
     return df[['Symbol', 'Category', 'Price', 'Qty', 'Value']]
 
 

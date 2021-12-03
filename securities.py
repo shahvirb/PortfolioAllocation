@@ -9,7 +9,7 @@ import yahoo_finance_api2.exceptions as yfe
 import yfinanceng  # TODO can this wholly replace yahoo_finance_api2?
 
 MEMO_SIZE = 128
-
+DB_PATH = 'db_securities.json'
 
 # class IEXData():
 #     def __init__(self, apikey=None):
@@ -82,7 +82,7 @@ class YahooFinanceData():
 
 
 class CachingDataSource():
-    def __init__(self, db_path, expiry_hours=24):
+    def __init__(self, db_path=DB_PATH, expiry_hours=24):
         self.db = tinydb.TinyDB(db_path)
         self.datasource = YahooFinanceData()
         self.expiry_hours = expiry_hours
@@ -150,7 +150,7 @@ class SecurityCategories():
 
 
 def symbol_categories_df(cfg):
-    from pyinstrument import Profiler
+    from pyinstrument import Profiler # TODO this needs to be removed
     profiler = Profiler()
     profiler.start()
     syms = set()
@@ -160,14 +160,14 @@ def symbol_categories_df(cfg):
                 syms.add(s)
     cats = SecurityCategories(cfg)
     df = pd.DataFrame()
-    datasource = YahooFinanceData()
-    for s in syms:
-        df.at[s, 'Symbol'] = s
-        df.at[s, 'Name'] = datasource.name(s)
-        df.at[s, 'Category'] = cats.category(s, default='{} [Default]'.format(cats.default_category))
-        price, time = datasource.price_with_time(s)
-        df.at[s, 'Price'] = price
-        df.at[s, 'Updated'] = time
+    with CachingDataSource() as datasource:
+        for s in syms:
+            df.at[s, 'Symbol'] = s
+            df.at[s, 'Name'] = datasource.name(s)
+            df.at[s, 'Category'] = cats.category(s, default='{} [Default]'.format(cats.default_category))
+            price, time = datasource.price_with_time(s)
+            df.at[s, 'Price'] = price
+            df.at[s, 'Updated'] = time
 
     df = df.set_index('Symbol').reset_index().sort_values('Symbol')
     profiler.stop()

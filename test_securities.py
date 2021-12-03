@@ -55,15 +55,18 @@ class TestCachingDataSource:
         # Fetch the security price which shouldn't be blank. This creates a record in the database
         assert cds.name(REAL_SECURITY_SYMBOL) != ''
         created = cds.get_symbol(REAL_SECURITY_SYMBOL)['record_created']
+
         # Now let's create an expired timestamp and update the db entry to have this expired timestamp
         expired = created - (cds.expiry_hours + 1) * 3600
         import tinydb
         import tinydb.operations
         cds.db.update(tinydb.operations.set('record_created', expired), tinydb.Query().symbol == REAL_SECURITY_SYMBOL)
+
         # Also let's set the name to a bad value which we should never be able to read back
         bad_name = 'bad bad bad'
         cds.db.update(tinydb.operations.set('name', bad_name), tinydb.Query().symbol == REAL_SECURITY_SYMBOL)
+
         # Now doing get_symbol should return None because the record should be expired
         assert cds.get_symbol(REAL_SECURITY_SYMBOL) is None
-        assert cds.name(REAL_SECURITY_SYMBOL) != bad_name
-        assert len(cds.db) == 1
+        assert cds.name(REAL_SECURITY_SYMBOL) != bad_name # and the name shouldn't be the bad one we set
+        assert len(cds.db) == 1 # and the database should still only contain one record

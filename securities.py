@@ -190,12 +190,4 @@ if __name__ == "__main__":
         print(datasource.name(symbol), datasource.price_with_time(symbol))
 
 
-    # one_symbol_example('VTI')
-
-    def database_example(symbol):
-        datasource = CachingDataSource('db_securities.json')
-        print(datasource.name(symbol))
-        print(datasource.name(symbol))
-
-
-    database_example('VTI')
+    one_symbol_example('VTI')

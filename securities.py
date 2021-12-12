@@ -34,9 +34,9 @@ DB_PATH = 'db_securities.json'
 
 
 def elapsed_hours(seconds1, seconds2=time.time()):
-    '''
+    """
     :return: delta value in hours between seconds2 - seconds1
-    '''
+    """
     return (seconds2 - seconds1) / 3600
 
 

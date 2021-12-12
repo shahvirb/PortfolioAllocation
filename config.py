@@ -1,5 +1,3 @@
-import decimal
-
 import yaml
 
 
@@ -33,7 +31,8 @@ def load_ofx(cfg):
                 cfg['accounts'][name]['holdings'].update(securities)
             else:
                 cfg['accounts'][name]['holdings'] = securities
-            # Note: no need to read the cash_balance value from the statement because money market funds show up in statement.positions and should be categorized as cash
+            # Note: no need to read the cash_balance value from the statement because money market funds
+            # show up in statement.positions and should be categorized as cash
     return cfg
 
 

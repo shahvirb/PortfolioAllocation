@@ -1,7 +1,6 @@
 import datetime
 import pandas as pd
 # import pyEX
-import functools
 import time
 import tinydb
 import yahoo_finance_api2.share as yfshare
@@ -10,6 +9,7 @@ import yfinanceng  # TODO can this wholly replace yahoo_finance_api2?
 
 MEMO_SIZE = 128
 DB_PATH = 'db_securities.json'
+
 
 # class IEXData():
 #     def __init__(self, apikey=None):
@@ -40,13 +40,12 @@ def elapsed_hours(seconds1, seconds2=time.time()):
     return (seconds2 - seconds1) / 3600
 
 
-class YahooFinanceData():
+class YahooFinanceData:
     @staticmethod
     def make_datetime(ts):
         return datetime.datetime.fromtimestamp(ts / 1000)
 
     @staticmethod
-    @functools.lru_cache(maxsize=MEMO_SIZE)
     def find_last(symbol):
         def find_last_valid(hd):
             for i, price in reversed(list(enumerate(hd['close']))):
@@ -65,7 +64,6 @@ class YahooFinanceData():
         return None
 
     @staticmethod
-    @functools.lru_cache(maxsize=MEMO_SIZE)
     def name(symbol):
         return yfinanceng.Ticker(symbol).info.get('longName', '')
 
@@ -81,7 +79,7 @@ class YahooFinanceData():
         return data['close'][last], time_str
 
 
-class CachingDataSource():
+class CachingDataSource:
     def __init__(self, db_path=DB_PATH, expiry_hours=24):
         self.db = tinydb.TinyDB(db_path)
         self.datasource = YahooFinanceData()
@@ -129,7 +127,7 @@ class CachingDataSource():
         return self.read_symbol_data(symbol, 'last_price'), self.read_symbol_data(symbol, 'last_time')
 
 
-class SecurityCategories():
+class SecurityCategories:
     def __init__(self, cfg):
         self.symbol_cats = {}
         self.default_category = cfg['security_categorization']['default']
@@ -150,9 +148,6 @@ class SecurityCategories():
 
 
 def symbol_categories_df(cfg):
-    from pyinstrument import Profiler # TODO this needs to be removed
-    profiler = Profiler()
-    profiler.start()
     syms = set()
     for act in cfg['accounts']:
         if 'securities' in cfg['accounts'][act]['holdings']:
@@ -170,8 +165,6 @@ def symbol_categories_df(cfg):
             df.at[s, 'Updated'] = time
 
     df = df.set_index('Symbol').reset_index().sort_values('Symbol')
-    profiler.stop()
-    profiler.print()
     return df
 
 

@@ -1,6 +1,4 @@
-import dash
-import dash_core_components as dcc
-import dash_html_components as html
+from dash import Dash, dcc, html
 import plotly.graph_objs as go
 import cufflinks as cf
 
@@ -43,7 +41,7 @@ def category_weights_sunburst(df):
 if __name__ == '__main__':
     external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
-    app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+    app = Dash(__name__, external_stylesheets=external_stylesheets)
 
     trace = go.Sunburst(
         labels=["Eve", "Cain", "Seth", "Enos", "Noam", "Abel", "Awan", "Enoch", "Azura"],

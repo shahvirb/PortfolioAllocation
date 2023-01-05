@@ -2,7 +2,6 @@ import numpy as np
 import pandas as pd
 from dash import dash_table
 import securities
-import qgrid
 import config
 
 
@@ -32,6 +31,7 @@ def print_df(df):
     if run_from_ipython():
         # display(df)
         flat = flatten_multiindex_columns(df)
+        import qgrid
         qgrid_widget = qgrid.show_grid(flat, show_toolbar=True)
         display(qgrid_widget)
     else:
